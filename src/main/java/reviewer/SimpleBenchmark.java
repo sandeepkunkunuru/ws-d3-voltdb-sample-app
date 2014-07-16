@@ -28,28 +28,39 @@ import org.voltdb.client.Client;
 import org.voltdb.client.ClientFactory;
 import org.voltdb.client.ClientResponse;
 import org.voltdb.client.ProcCallException;
+import reviewer.common.BookReviewsGenerator;
 
 import java.io.IOException;
-import java.util.Random;
 
-public class SimpleBenchmark
-{
+public class SimpleBenchmark extends Benchmark {
     private final static int TXNS = 10000;
+    public String[] args;
 
-    public static void main(String[] args)
-    {
-        System.out.println("Running Simple Benchmark");
+    public SimpleBenchmark() {
+        super(null);
+    }
+
+    public static void main(String[] args) {
+        SimpleBenchmark bm = new SimpleBenchmark();
+        bm.args = args;
+        bm.runBenchmark();
+    }
+
+    public void runBenchmark() {
+        System.out.println("Running Simple Benchmark which invokes default REVIEWS.insert stored procedure");
         try {
             final Client client = ClientFactory.createClient();
-            final Random rng = new Random();
 
             for (String s : args) {
                 client.createConnection(s, Client.VOLTDB_SERVER_PORT);
             }
 
-            for (int i=0; i < SimpleBenchmark.TXNS; i++) {
+            BookReviewsGenerator gen = new BookReviewsGenerator(10000);
+
+            for (int i = 0; i < SimpleBenchmark.TXNS; i++) {
+                BookReviewsGenerator.Review review = gen.receive();
                 ClientResponse response =
-                    client.callProcedure("REVIEWS.insert", rng.nextLong(), "MA", Integer.valueOf(i));
+                        client.callProcedure("REVIEWS.insert", review.email, review.review, review.bookId);
 
                 if (response.getStatus() != ClientResponse.SUCCESS) {
                     throw new RuntimeException(response.getStatusString());
@@ -59,11 +70,9 @@ public class SimpleBenchmark
                     System.out.printf(".");
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-        catch (ProcCallException e) {
+        } catch (ProcCallException e) {
             throw new RuntimeException(e);
         }
 

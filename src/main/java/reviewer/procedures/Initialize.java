@@ -1,14 +1,12 @@
 //
-// Initializes the database, pushing the list of books and documenting domain data (Area codes and States).
+// Initializes the database, pushing the list of books.
 //
-
 package reviewer.procedures;
 
 import org.voltdb.SQLStmt;
 import org.voltdb.VoltProcedure;
 
-public class Initialize extends VoltProcedure
-{
+public class Initialize extends VoltProcedure {
     // Check if the database has already been initialized
     public final SQLStmt checkStmt = new SQLStmt("SELECT COUNT(*) FROM books;");
 
@@ -27,9 +25,8 @@ public class Initialize extends VoltProcedure
             return existingBookCount;
 
         // initialize the data
-
-        for (int i=0; i < maxBooks; i++)
-            voltQueueSQL(insertBookStmt, EXPECT_SCALAR_MATCH(1), bookArray[i], i+1);
+        for (int i = 0; i < maxBooks; i++)
+            voltQueueSQL(insertBookStmt, EXPECT_SCALAR_MATCH(1), bookArray[i], i + 1);
         voltExecuteSQL();
 
         return maxBooks;

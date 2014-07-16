@@ -13,25 +13,24 @@ CREATE TABLE books
 -- reviewers are not allowed to submit more than <x> reviews, x is passed to client application-- reviewer is identified by email
 CREATE TABLE reviews
 (
-  email       varchar(25)     NOT NULL
+  email       varchar(50)     NOT NULL
 , review      varchar(100) NOT NULL
 , book_id  integer    NOT NULL
 );
 
 PARTITION TABLE reviews ON COLUMN email;
 
--- rollup of reviews by email, used to reject excessive voting
-CREATE VIEW v_reviews_by_email
+-- rollup of reviews by book
+CREATE VIEW v_reviews_by_book
 (
-  email
-, num_reviews
+  book_id,
+  book_name,
+  num_reviews
 )
 AS
-   SELECT email
-        , COUNT(*)
-     FROM reviews
- GROUP BY email
-;
+   SELECT book_id, book_name, COUNT(*)
+     FROM reviews, book where reviews.book_id = books.book_id
+ GROUP BY book_id;
 
 
 -- stored procedures

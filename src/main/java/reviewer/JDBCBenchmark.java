@@ -34,11 +34,12 @@
 
 package reviewer;
 
-import org.voltdb.CLIConfig;
 import org.voltdb.client.ClientStats;
 import org.voltdb.client.ClientStatsContext;
-import org.voltdb.client.ClientStatusListenerExt;
 import org.voltdb.jdbc.IVoltDBConnection;
+import reviewer.common.BookReviewsGenerator;
+import reviewer.common.Constants;
+import reviewer.common.ReviewerConfig;
 
 import java.sql.*;
 import java.util.Timer;
@@ -46,31 +47,24 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class JDBCBenchmark {
+public class JDBCBenchmark extends Benchmark {
 
-    // Initialize some common constants and variables
-    static final String BOOK_NAMES_CSV = "Edwina Burnam,Tabatha Gehling,Kelly Clauss,Jessie Alloway,"
-            + "Alana Bregman,Jessie Eichman,Allie Rogalski,Nita Coster,"
-            + "Kurt Walser,Ericka Dieter,Loraine NygrenTania Mattioli";
-
-    // handy, rather than typing this out several times
-    static final String HORIZONTAL_RULE = "----------" + "----------"
-            + "----------" + "----------" + "----------" + "----------"
-            + "----------" + "----------" + "\n";
-
-    // validated command line configuration
-    final ReviewerConfig config;
     // Reference to the database connection we will use
     Connection client;
+
     // Email generator
     BookReviewsGenerator switchboard;
+
     // Timer for periodic stats printing
     Timer timer;
+
     // Benchmark start time
     long benchmarkStartTS;
+
     // Flags to tell the worker threads to stop or go
     AtomicBoolean warmupComplete = new AtomicBoolean(false);
     AtomicBoolean benchmarkComplete = new AtomicBoolean(false);
+
     // Statistics manager objects from the client
     ClientStatsContext periodicStatsContext;
     ClientStatsContext fullStatsContext;
@@ -82,84 +76,19 @@ public class JDBCBenchmark {
     AtomicLong failedReviews = new AtomicLong(0);
 
     /**
-     * Uses included {@link CLIConfig} class to declaratively state command line
-     * options with defaults and validation.
-     */
-    static class ReviewerConfig extends CLIConfig {
-        @Option(desc = "Interval for performance feedback, in seconds.")
-        long displayinterval = 5;
-
-        @Option(desc = "Benchmark duration, in seconds.")
-        int duration = 120;
-
-        @Option(desc = "Warmup duration in seconds.")
-        int warmup = 5;
-
-        @Option(desc = "Comma separated list of the form server[:port] to connect to.")
-        String servers = "localhost";
-
-        @Option(desc = "Number of books in the reviewing time window (from 1 to 10).")
-        int books = 6;
-
-        @Option(desc = "Maximum number of reviews cast per reviewer.")
-        int maxreviews = 2;
-
-        @Option(desc = "Filename to write raw summary statistics to.")
-        String statsfile = "";
-
-        @Option(desc = "Number of concurrent threads synchronously calling procedures.")
-        int threads = 40;
-
-        @Override
-        public void validate() {
-            if (duration <= 0)
-                exitWithMessageAndUsage("duration must be > 0");
-            if (warmup < 0)
-                exitWithMessageAndUsage("warmup must be >= 0");
-            if (duration < 0)
-                exitWithMessageAndUsage("warmup must be >= 0");
-            if (displayinterval <= 0)
-                exitWithMessageAndUsage("displayinterval must be > 0");
-            if (books <= 0)
-                exitWithMessageAndUsage("books must be > 0");
-            if (maxreviews <= 0)
-                exitWithMessageAndUsage("maxreviews must be > 0");
-            if (threads <= 0)
-                exitWithMessageAndUsage("threads must be > 0");
-        }
-    }
-
-    /**
-     * Provides a callback to be notified on node failure. This example only
-     * logs the event.
-     */
-    class StatusListener extends ClientStatusListenerExt {
-        @Override
-        public void connectionLost(String hostname, int port,
-                int connectionsLeft, DisconnectCause cause) {
-            // if the benchmark is still active
-            if (benchmarkComplete.get() == false) {
-                System.err.printf("Connection to %s:%d was lost.\n", hostname,
-                        port);
-            }
-        }
-    }
-
-    /**
      * Constructor for benchmark instance. Configures VoltDB client and prints
      * configuration.
      *
-     * @param config
-     *            Parsed & validated CLI options.
+     * @param config Parsed & validated CLI options.
      */
     public JDBCBenchmark(ReviewerConfig config) {
-        this.config = config;
+        super(config);
 
         switchboard = new BookReviewsGenerator(config.books);
 
-        System.out.print(HORIZONTAL_RULE);
+        System.out.print(Constants.HORIZONTAL_RULE);
         System.out.println(" Command Line Configuration");
-        System.out.println(HORIZONTAL_RULE);
+        System.out.println(Constants.HORIZONTAL_RULE);
         System.out.println(config.getConfigDumpString());
     }
 
@@ -167,11 +96,9 @@ public class JDBCBenchmark {
      * Connect to a set of servers in parallel. Each will retry until
      * connection. This call will block until all have connected.
      *
-     * @param servers
-     *            A comma separated list of servers using the hostname:port
-     *            syntax (where :port is optional).
-     * @throws InterruptedException
-     *             if anything bad happens with the threads.
+     * @param servers A comma separated list of servers using the hostname:port
+     *                syntax (where :port is optional).
+     * @throws InterruptedException   if anything bad happens with the threads.
      * @throws ClassNotFoundException
      * @throws SQLException
      */
@@ -228,93 +155,10 @@ public class JDBCBenchmark {
                 stats.getAverageLatency(), stats.kPercentileLatencyAsDouble(0.95));
     }
 
-    /**
-     * Prints the results of the voting simulation and statistics about
-     * performance.
-     *
-     * @throws Exception
-     *             if anything unexpected happens.
-     */
-    public synchronized void printResults() throws Exception {
-        ClientStats stats = fullStatsContext.fetch().getStats();
-
-        // 1. Voting Board statistics, Voting results and performance statistics
-        String display = "\n" + HORIZONTAL_RULE + " Voting Results\n"
-                + HORIZONTAL_RULE + "\nA total of %d reviews were received...\n"
-                + " - %,9d Accepted\n"
-                + " - %,9d Rejected (Invalid Book)\n"
-                + " - %,9d Rejected (Maximum Review Count Reached)\n"
-                + " - %,9d Failed (Transaction Error)\n\n";
-        System.out.printf(display, stats.getInvocationsCompleted(),
-                acceptedReviews.get(), badBookReviews.get(),
-                badReviewCountReviews.get(), failedReviews.get());
-
-        // 2. Voting results
-        final PreparedStatement resultsCS = client
-                .prepareCall("{call Results}");
-        ResultSet result = resultsCS.executeQuery();
-        String winner = "";
-        long winnerReviewCount = 0;
-
-        System.out.println("Book Name\t\tReviews Received");
-        while (result.next()) {
-            if (result.getLong(3) > winnerReviewCount) {
-                winnerReviewCount = result.getLong(3);
-                winner = result.getString(1);
-            }
-            System.out.printf("%s\t\t%,14d\n", result.getString(1),
-                    result.getLong(3));
-        }
-        System.out.printf("\nThe Winner is: %s\n\n", winner);
-
-        // 3. Performance statistics
-        System.out.print(HORIZONTAL_RULE);
-        System.out.println(" Client Workload Statistics");
-        System.out.println(HORIZONTAL_RULE);
-
-        System.out.printf("Average throughput:            %,9d txns/sec\n",
-                stats.getTxnThroughput());
-        System.out.printf("Average latency:               %,9.2f ms\n",
-                stats.getAverageLatency());
-        System.out.printf("10th percentile latency:       %,9.2f ms\n",
-                stats.kPercentileLatencyAsDouble(.1));
-        System.out.printf("25th percentile latency:       %,9.2f ms\n",
-                stats.kPercentileLatencyAsDouble(.25));
-        System.out.printf("50th percentile latency:       %,9.2f ms\n",
-                stats.kPercentileLatencyAsDouble(.5));
-        System.out.printf("75th percentile latency:       %,9.2f ms\n",
-                stats.kPercentileLatencyAsDouble(.75));
-        System.out.printf("90th percentile latency:       %,9.2f ms\n",
-                stats.kPercentileLatencyAsDouble(.9));
-        System.out.printf("95th percentile latency:       %,9.2f ms\n",
-                stats.kPercentileLatencyAsDouble(.95));
-        System.out.printf("99th percentile latency:       %,9.2f ms\n",
-                stats.kPercentileLatencyAsDouble(.99));
-        System.out.printf("99.5th percentile latency:     %,9.2f ms\n",
-                stats.kPercentileLatencyAsDouble(.995));
-        System.out.printf("99.9th percentile latency:     %,9.2f ms\n",
-                stats.kPercentileLatencyAsDouble(.999));
-
-        System.out.print("\n" + HORIZONTAL_RULE);
-        System.out.println(" System Server Statistics");
-        System.out.println(HORIZONTAL_RULE);
-
-        System.out.printf("Reported Internal Avg Latency: %,9.2f ms\n",
-        stats.getAverageInternalLatency());
-
-        System.out.print("\n" + HORIZONTAL_RULE);
-        System.out.println(" Latency Histogram");
-        System.out.println(HORIZONTAL_RULE);
-        System.out.println(stats.latencyHistoReport());
-
-        // 4. Write stats to file if requested
-        ((IVoltDBConnection)client).writeSummaryCSV(stats, config.statsfile);
-    }
 
     /**
      * While <code>benchmarkComplete</code> is set to false, run as many
      * synchronous procedure calls as possible and record the results.
-     *
      */
     class ReviewerThread implements Runnable {
 
@@ -327,10 +171,11 @@ public class JDBCBenchmark {
                 // synchronously call the "Review" procedure
                 try {
                     final PreparedStatement reviewCS = client
-                            .prepareCall("{call Review(?,?,?)}");
-                    reviewCS.setLong(1, call.email);
-                    reviewCS.setInt(2, call.bookId);
-                    reviewCS.setLong(3, config.maxreviews);
+                            .prepareCall("{call Review(?,?,?,?)}");
+                    reviewCS.setString(1, call.email);
+                    reviewCS.setString(2, call.review);
+                    reviewCS.setInt(3, call.bookId);
+                    reviewCS.setLong(4, config.maxreviews);
                 } catch (Exception e) {
                 }
             }
@@ -343,10 +188,11 @@ public class JDBCBenchmark {
                 try {
 
                     final PreparedStatement reviewCS = client
-                            .prepareCall("{call Review(?,?,?)}");
-                    reviewCS.setLong(1, call.email);
-                    reviewCS.setInt(2, call.bookId);
-                    reviewCS.setLong(3, config.maxreviews);
+                            .prepareCall("{call Review(?,?,?,?)}");
+                    reviewCS.setString(1, call.email);
+                    reviewCS.setString(2, call.review);
+                    reviewCS.setInt(3, call.bookId);
+                    reviewCS.setLong(4, config.maxreviews);
 
                     try {
                         reviewCS.executeUpdate();
@@ -367,13 +213,12 @@ public class JDBCBenchmark {
      * Core benchmark code. Connect. Initialize. Run the loop. Cleanup. Print
      * Results.
      *
-     * @throws Exception
-     *             if anything unexpected happens.
+     * @throws Exception if anything unexpected happens.
      */
     public void runBenchmark() throws Exception {
-        System.out.print(HORIZONTAL_RULE);
+        System.out.print(Constants.HORIZONTAL_RULE);
         System.out.println(" Setup & Initialization");
-        System.out.println(HORIZONTAL_RULE);
+        System.out.println(Constants.HORIZONTAL_RULE);
 
         // connect to one or more servers, loop until success
         connect(config.servers);
@@ -384,12 +229,12 @@ public class JDBCBenchmark {
         final PreparedStatement initializeCS = client
                 .prepareCall("{call Initialize(?,?)}");
         initializeCS.setInt(1, config.books);
-        initializeCS.setString(2, BOOK_NAMES_CSV);
+        initializeCS.setString(2, Constants.BOOK_NAMES_CSV);
         initializeCS.executeUpdate();
 
-        System.out.print(HORIZONTAL_RULE);
+        System.out.print(Constants.HORIZONTAL_RULE);
         System.out.println(" Starting Benchmark");
-        System.out.println(HORIZONTAL_RULE);
+        System.out.println(Constants.HORIZONTAL_RULE);
 
         // create/start the requested number of threads
         Thread[] reviewrThreads = new Thread[config.threads];
@@ -441,10 +286,8 @@ public class JDBCBenchmark {
     /**
      * Main routine creates a benchmark instance and kicks off the run method.
      *
-     * @param args
-     *            Command line arguments.
-     * @throws Exception
-     *             if anything goes wrong.
+     * @param args Command line arguments.
+     * @throws Exception if anything goes wrong.
      * @see {@link ReviewerConfig}
      */
     public static void main(String[] args) throws Exception {

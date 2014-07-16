@@ -31,20 +31,18 @@ import org.voltdb.SQLStmt;
 import org.voltdb.VoltProcedure;
 import org.voltdb.VoltTable;
 
-public class Results extends VoltProcedure
-{
+public class Results extends VoltProcedure {
     // Gets the results
-    public final SQLStmt resultStmt = new SQLStmt( "   SELECT a.book_name   AS book_name"
-                                                 + "        , a.book_id AS book_id"
-                                                 + "        , SUM(b.num_reviews)    AS total_reviews"
-                                                 + "     FROM v_reviews_by_book_id_state AS b"
-                                                 + "        , books AS a"
-                                                 + "    WHERE a.book_id = b.book_id"
-                                                 + " GROUP BY a.book_name"
-                                                 + "        , a.book_id"
-                                                 + " ORDER BY total_reviews DESC"
-                                                 + "        , book_id ASC"
-                                                 + "        , book_name ASC;" );
+    public final SQLStmt resultStmt = new SQLStmt("   SELECT a.book_name   AS book_name"
+            + "        , a.book_id AS book_id"
+            + "        , a.num_reviews    AS total_reviews"
+            + "     FROM v_reviews_by_book AS a"
+            + " GROUP BY a.book_name"
+            + "        , a.book_id"
+            + " ORDER BY total_reviews DESC"
+            + "        , book_id ASC"
+            + "        , book_name ASC;");
+
     public VoltTable[] run() {
         voltQueueSQL(resultStmt);
         return voltExecuteSQL(true);

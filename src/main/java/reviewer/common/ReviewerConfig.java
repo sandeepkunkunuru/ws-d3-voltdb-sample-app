@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package reviewer;
+package reviewer.common;
 
 import org.voltdb.CLIConfig;
 
@@ -31,30 +31,42 @@ import org.voltdb.CLIConfig;
  * declaratively state command line options with defaults
  * and validation.
  */
-class ReviewerConfig extends CLIConfig {
+public class ReviewerConfig extends CLIConfig {
     @Option(desc = "Interval for performance feedback, in seconds.")
-    long displayinterval = 5;
+    public long displayinterval = 5;
 
     @Option(desc = "Benchmark duration, in seconds.")
-    int duration = 120;
+    public int duration = 120;
 
     @Option(desc = "Warmup duration in seconds.")
-    int warmup = 5;
+    public int warmup = 5;
 
     @Option(desc = "Comma separated list of the form server[:port] to connect to.")
-    String servers = "localhost";
+    public String servers = "localhost";
 
     @Option(desc = "Number of books in the reviewing time window (from 1 to 10).")
-    int books = 6;
+    public int books = 6;
 
     @Option(desc = "Maximum number of reviews cast per reviewer.")
-    int maxreviews = 2;
+    public int maxreviews = 2;
 
     @Option(desc = "Filename to write raw summary statistics to.")
-    String statsfile = "";
+    public String statsfile = "";
 
     @Option(desc = "Number of concurrent threads synchronously calling procedures.")
-    int threads = 40;
+    public int threads = 40;
+
+    @Option(desc = "User name for connection.")
+    public String user = "";
+
+    @Option(desc = "Password for connection.")
+    public String password = "";
+
+    @Option(desc = "Maximum TPS rate for benchmark.")
+    public int ratelimit = Integer.MAX_VALUE;
+
+    @Option(desc = "Report latency for async benchmark run.")
+    public boolean latencyreport = false;
 
     @Override
     public void validate() {

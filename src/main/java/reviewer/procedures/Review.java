@@ -1,16 +1,14 @@
-
-//
-// Accepts a review, enforcing business logic: make sure the review is for a valid
-// book and that the reviewer (email of the reviewer) is not above the
-// number of allowed reviews.
-//
-
 package reviewer.procedures;
 
 import org.voltdb.SQLStmt;
 import org.voltdb.VoltProcedure;
 import org.voltdb.VoltTable;
 
+/**
+ * Accepts a review, enforcing business logic: make sure the review is for a valid
+ * book and that the reviewer (email of the reviewer) is not above the
+ * number of allowed reviews.
+ */
 public class Review extends VoltProcedure {
 
     // potential return codes
@@ -30,9 +28,8 @@ public class Review extends VoltProcedure {
     public final SQLStmt insertReviewStmt = new SQLStmt(
             "INSERT INTO reviews (email, review, book_id) VALUES (?, ?, ?);");
 
-    public long run(long email, int bookId, long maxReviewsPerEmail) {
-
-        // Queue up validation reviewments
+    public long run(String email, String review, int bookId, long maxReviewsPerEmail) {
+        // Queue up validation
         voltQueueSQL(checkBookStmt, EXPECT_ZERO_OR_ONE_ROW, bookId);
         voltQueueSQL(checkReviewerStmt, EXPECT_ZERO_OR_ONE_ROW, email);
         VoltTable validation[] = voltExecuteSQL();
@@ -45,13 +42,6 @@ public class Review extends VoltProcedure {
                 (validation[1].asScalarLong() >= maxReviewsPerEmail)) {
             return ERR_REVIEWER_OVER_REVIEW_LIMIT;
         }
-
-        // Some sample client libraries use the legacy random phone generation that mostly
-        // created invalid emails. Until refactoring, re-assign all such reviews to
-        // the "XX" fake review (those reviews will not appear on the Live Statistics dashboard,
-        // but are tracked as legitimate instead of invalid, as old clients would mostly get
-        // it wrong and see all their transactions rejected).
-        final String review = (validation[2].getRowCount() > 0) ? validation[2].fetchRow(0).getString(0) : "XX";
 
         // Post the review
         voltQueueSQL(insertReviewStmt, EXPECT_SCALAR_MATCH(1), email, review, bookId);
