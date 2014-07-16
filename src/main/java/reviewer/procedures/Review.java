@@ -9,7 +9,7 @@ import org.voltdb.VoltTable;
  * book and that the reviewer (email of the reviewer) is not above the
  * number of allowed reviews.
  */
-public class Review extends VoltProcedure {
+public class    Review extends VoltProcedure {
 
     // potential return codes
     public static final long REVIEW_SUCCESSFUL = 0;

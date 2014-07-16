@@ -39,14 +39,12 @@ import java.util.concurrent.atomic.AtomicLong;
  * Created by sandeep on 7/16/14.
  */
 public abstract class Benchmark {
-    // Statistics manager objects from the client
-    protected final ClientStatsContext periodicStatsContext;
 
     // Reference to the database connection we will use
-    protected final Client client;
-    protected final ClientStatsContext fullStatsContext;
+    protected Client client;
+
     // validated command line configuration
-    protected final ReviewerConfig config;
+    protected ReviewerConfig config;
     protected AtomicLong badBookReviews = new AtomicLong(0);
     protected AtomicLong badReviewCountReviews = new AtomicLong(0);
     // reviewer benchmark state
@@ -63,16 +61,12 @@ public abstract class Benchmark {
     protected AtomicBoolean warmupComplete = new AtomicBoolean(false);
     protected AtomicBoolean benchmarkComplete = new AtomicBoolean(false);
 
+    // Statistics manager objects from the client
+    protected ClientStatsContext periodicStatsContext;
+    protected ClientStatsContext fullStatsContext;
+
     public Benchmark(ReviewerConfig config) {
         this.config = config;
-
-        ClientConfig clientConfig = new ClientConfig(config.user, config.password, new StatusListener());
-        clientConfig.setMaxTransactionsPerSecond(config.ratelimit);
-
-        client = ClientFactory.createClient(clientConfig);
-
-        periodicStatsContext = client.createStatsContext();
-        fullStatsContext = client.createStatsContext();
 
         reviewsGenerator = new BookReviewsGenerator(config.books);
 
@@ -166,31 +160,6 @@ public abstract class Benchmark {
                         port);
             }
         }
-    }
-
-    /**
-     * Connect to a single server with retry. Limited exponential backoff.
-     * No timeout. This will run until the process is killed if it's not
-     * able to connect.
-     *
-     * @param server hostname:port or just hostname (hostname can be ip).
-     */
-    void connectToOneServerWithRetry(String server) {
-        int sleep = 1000;
-        while (true) {
-            try {
-                client.createConnection(server);
-                break;
-            } catch (Exception e) {
-                System.err.printf("Connection failed - retrying in %d second(s).\n", sleep / 1000);
-                try {
-                    Thread.sleep(sleep);
-                } catch (Exception ignored) {
-                }
-                if (sleep < 8000) sleep += sleep;
-            }
-        }
-        System.out.printf("Connected to VoltDB node at: %s.\n", server);
     }
 
     /**

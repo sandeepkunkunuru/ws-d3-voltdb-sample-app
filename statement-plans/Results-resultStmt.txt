@@ -1,0 +1,12 @@
+SQL: SELECT book_name, book_id,  COUNT(*)     FROM reviews, books where reviews.book_id = books.book_id GROUP BY book_name,book_id;
+PLAN:
+RETURN RESULTS TO STORED PROCEDURE
+ AGGREGATION ops: SUM(VOLT_TEMP_TABLE.column#2)
+  RECEIVE FROM ALL PARTITIONS
+   SEND PARTITION RESULTS TO COORDINATOR
+    AGGREGATION ops: COUNT(
+     NESTLOOP INDEX INNER JOIN
+     inline INDEX SCAN of "BOOKS" using its primary key index
+      uniquely match (BOOK_ID = REVIEWS.BOOK_ID)
+      SEQUENTIAL SCAN of "REVIEWS"
+

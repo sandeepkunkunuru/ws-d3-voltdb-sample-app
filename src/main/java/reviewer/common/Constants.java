@@ -6,7 +6,7 @@ package reviewer.common;
 public class Constants {
     // Initialize some common constants and variables
     public static final String BOOK_NAMES_CSV = "Atlas Shrugged, Autbiography of a Yogi, Fountain Head,"
-            + " My Experiments with Truth, We The People";
+            + " My Experiments with Truth, We The People, Autobiography of Swamy Vivekananda";
 
     public static final int MAX_REVIEWS_PER_USER = 25;
 

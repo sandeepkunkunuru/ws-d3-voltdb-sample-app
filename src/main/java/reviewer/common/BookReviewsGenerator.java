@@ -43,7 +43,9 @@ public class BookReviewsGenerator {
                 "." + RandomTextGenerator.generateText(3, Constants.PERMISSIBLE_DOMAIN_EXT_CHARACTERS);
 
         // Build review
-        String review = RandomTextGenerator.generateText(100, Constants.PERMISSIBLE_REVIEW_CHARACTERS);
+        String review = RandomTextGenerator.generateText(75, Constants.PERMISSIBLE_REVIEW_CHARACTERS);
+
+        //System.out.println(bookId + "------" + email + "------" + review + "------");
 
         return new Review(bookId, email, review);
     }

@@ -52,7 +52,7 @@ public class SyncBenchmark extends Benchmark {
                 // synchronously call the "Review" procedure
                 try {
                     ClientResponse response = client.callProcedure("Review",
-                            call.email,
+                            call.email, call.review,
                             call.bookId,
                             config.maxreviews);
 
@@ -100,6 +100,29 @@ public class SyncBenchmark extends Benchmark {
         }
         // block until all have connected
         connections.await();
+    }
+
+    /**
+     * Connect to a single server with retry. Limited exponential backoff.
+     * No timeout. This will run until the process is killed if it's not
+     * able to connect.
+     *
+     * @param server hostname:port or just hostname (hostname can be ip).
+     */
+    void connectToOneServerWithRetry(String server) {
+        int sleep = 1000;
+        while (true) {
+            try {
+                client.createConnection(server);
+                break;
+            }
+            catch (Exception e) {
+                System.err.printf("Connection failed - retrying in %d second(s).\n", sleep / 1000);
+                try { Thread.sleep(sleep); } catch (Exception interruted) {}
+                if (sleep < 8000) sleep += sleep;
+            }
+        }
+        System.out.printf("Connected to VoltDB node at: %s.\n", server);
     }
 
 

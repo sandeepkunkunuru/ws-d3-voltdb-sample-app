@@ -20,17 +20,16 @@ CREATE TABLE reviews
 
 PARTITION TABLE reviews ON COLUMN email;
 
--- rollup of reviews by book
-CREATE VIEW v_reviews_by_book
+-- rollup of reviews by email
+CREATE VIEW v_reviews_by_email
 (
-  book_id,
-  book_name,
+  email,
   num_reviews
 )
 AS
-   SELECT book_id, book_name, COUNT(*)
-     FROM reviews, book where reviews.book_id = books.book_id
- GROUP BY book_id;
+   SELECT email,  COUNT(*)
+     FROM reviews
+ GROUP BY email;
 
 
 -- stored procedures

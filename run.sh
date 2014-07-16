@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-APPNAME="authenticator"
+APPNAME="reviewer"
 
 # find voltdb binaries in either installation or distribution directory.
 if [ -n "$(which voltdb 2> /dev/null)" ]; then
@@ -50,8 +50,9 @@ function clean() {
 function srccompile() {
     mkdir -p obj
     javac -target 1.7 -source 1.7 -classpath $APPCLASSPATH -d obj \
-        src/authenticator/*.java \
-        src/authenticator/procedures/*.java
+        src/main/java/reviewer/common/*.java \
+        src/main/java/reviewer/procedures/*.java \
+        src/main/java/reviewer/*.java
     # stop if compilation fails
     if [ $? != 0 ]; then exit; fi
 }
@@ -59,7 +60,7 @@ function srccompile() {
 # build an application catalog
 function catalog() {
     srccompile
-    echo "Compiling the authenticator application catalog."
+    echo "Compiling the reviewer application catalog."
     echo "To perform this action manually, use the command line: "
     echo
     echo "voltdb compile --classpath obj -o $APPNAME.jar ddl.sql"
@@ -99,7 +100,7 @@ function client() {
 # Use this target for argument help
 function async-benchmark-help() {
     srccompile
-    java -classpath obj:$CLIENTCLASSPATH:obj authenticator.AsyncBenchmark --help
+    java -classpath obj:$CLIENTCLASSPATH:obj reviewer.AsyncBenchmark --help
 }
 
 # latencyreport: default is OFF
@@ -108,7 +109,7 @@ function async-benchmark-help() {
 function async-benchmark() {
     srccompile
     java -classpath obj:$CLIENTCLASSPATH:obj -Dlog4j.configuration=file://$LOG4J \
-        authenticator.AsyncBenchmark \
+        reviewer.AsyncBenchmark \
         --displayinterval=5 \
         --warmup=5 \
         --duration=120 \
@@ -122,20 +123,20 @@ function async-benchmark() {
 function simple-benchmark() {
     srccompile
     java -classpath obj:$CLIENTCLASSPATH:obj -Dlog4j.configuration=file://$LOG4J \
-        authenticator.SimpleBenchmark localhost
+        reviewer.SimpleBenchmark localhost
 }
 
 # Multi-threaded synchronous benchmark sample
 # Use this target for argument help
 function sync-benchmark-help() {
     srccompile
-    java -classpath obj:$CLIENTCLASSPATH:obj authenticator.SyncBenchmark --help
+    java -classpath obj:$CLIENTCLASSPATH:obj reviewer.SyncBenchmark --help
 }
 
 function sync-benchmark() {
     srccompile
     java -classpath obj:$CLIENTCLASSPATH:obj -Dlog4j.configuration=file://$LOG4J \
-        authenticator.SyncBenchmark \
+        reviewer.SyncBenchmark \
         --displayinterval=5 \
         --warmup=5 \
         --duration=120 \
@@ -149,13 +150,13 @@ function sync-benchmark() {
 # Use this target for argument help
 function jdbc-benchmark-help() {
     srccompile
-    java -classpath obj:$CLIENTCLASSPATH:obj authenticator.JDBCBenchmark --help
+    java -classpath obj:$CLIENTCLASSPATH:obj reviewer.JDBCBenchmark --help
 }
 
 function jdbc-benchmark() {
     srccompile
     java -classpath obj:$CLIENTCLASSPATH:obj -Dlog4j.configuration=file://$LOG4J \
-        authenticator.JDBCBenchmark \
+        reviewer.JDBCBenchmark \
         --displayinterval=5 \
         --duration=120 \
         --maxreviews=2 \

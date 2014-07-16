@@ -20,9 +20,7 @@
 
 package reviewer;
 
-import org.voltdb.client.ClientResponse;
-import org.voltdb.client.NullCallback;
-import org.voltdb.client.ProcedureCallback;
+import org.voltdb.client.*;
 import reviewer.common.BookReviewsGenerator;
 import reviewer.common.Constants;
 import reviewer.common.ReviewerConfig;
@@ -30,6 +28,7 @@ import reviewer.common.ReviewerConfig;
 import java.util.concurrent.CountDownLatch;
 
 public class AsyncBenchmark extends Benchmark {
+
     /**
      * Constructor for benchmark instance.
      * Configures VoltDB client and prints configuration.
@@ -38,6 +37,14 @@ public class AsyncBenchmark extends Benchmark {
      */
     public AsyncBenchmark(ReviewerConfig config) {
         super(config);
+
+        ClientConfig clientConfig = new ClientConfig(config.user, config.password, new StatusListener());
+        clientConfig.setMaxTransactionsPerSecond(config.ratelimit);
+
+        this.client =  ClientFactory.createClient(clientConfig);
+
+        periodicStatsContext = client.createStatsContext();
+        fullStatsContext = client.createStatsContext();
     }
 
     /**
@@ -96,7 +103,7 @@ public class AsyncBenchmark extends Benchmark {
             // asynchronously call the "Review" procedure
             client.callProcedure(new NullCallback(),
                     "Review",
-                    call.email,
+                    call.email, call.review,
                     call.bookId,
                     config.maxreviews);
         }
@@ -165,6 +172,31 @@ public class AsyncBenchmark extends Benchmark {
         }
         // block until all have connected
         connections.await();
+    }
+
+    /**
+     * Connect to a single server with retry. Limited exponential backoff.
+     * No timeout. This will run until the process is killed if it's not
+     * able to connect.
+     *
+     * @param server hostname:port or just hostname (hostname can be ip).
+     */
+    void connectToOneServerWithRetry(String server) {
+        int sleep = 1000;
+        while (true) {
+            try {
+                client.createConnection(server);
+                break;
+            } catch (Exception e) {
+                System.err.printf("Connection failed - retrying in %d second(s).\n", sleep / 1000);
+                try {
+                    Thread.sleep(sleep);
+                } catch (Exception ignored) {
+                }
+                if (sleep < 8000) sleep += sleep;
+            }
+        }
+        System.out.printf("Connected to VoltDB node at: %s.\n", server);
     }
 
     /**

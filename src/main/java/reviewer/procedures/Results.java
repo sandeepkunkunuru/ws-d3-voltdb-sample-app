@@ -33,15 +33,9 @@ import org.voltdb.VoltTable;
 
 public class Results extends VoltProcedure {
     // Gets the results
-    public final SQLStmt resultStmt = new SQLStmt("   SELECT a.book_name   AS book_name"
-            + "        , a.book_id AS book_id"
-            + "        , a.num_reviews    AS total_reviews"
-            + "     FROM v_reviews_by_book AS a"
-            + " GROUP BY a.book_name"
-            + "        , a.book_id"
-            + " ORDER BY total_reviews DESC"
-            + "        , book_id ASC"
-            + "        , book_name ASC;");
+    public final SQLStmt resultStmt = new SQLStmt(" SELECT book_name, book_id,  COUNT(*)"
+            + "     FROM reviews, books where reviews.book_id = books.book_id"
+            + " GROUP BY book_name,book_id;");
 
     public VoltTable[] run() {
         voltQueueSQL(resultStmt);

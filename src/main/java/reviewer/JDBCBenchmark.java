@@ -1,25 +1,3 @@
-/* This file is part of VoltDB.
- * Copyright (C) 2008-2014 VoltDB Inc.
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
- * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- */
 /*
  * This samples uses multiple threads to post synchronous requests to the
  * VoltDB server, simulating multiple client application posting
@@ -34,46 +12,19 @@
 
 package reviewer;
 
-import org.voltdb.client.ClientStats;
-import org.voltdb.client.ClientStatsContext;
 import org.voltdb.jdbc.IVoltDBConnection;
 import reviewer.common.BookReviewsGenerator;
 import reviewer.common.Constants;
 import reviewer.common.ReviewerConfig;
 
-import java.sql.*;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class JDBCBenchmark extends Benchmark {
-
     // Reference to the database connection we will use
     Connection client;
-
-    // Email generator
-    BookReviewsGenerator switchboard;
-
-    // Timer for periodic stats printing
-    Timer timer;
-
-    // Benchmark start time
-    long benchmarkStartTS;
-
-    // Flags to tell the worker threads to stop or go
-    AtomicBoolean warmupComplete = new AtomicBoolean(false);
-    AtomicBoolean benchmarkComplete = new AtomicBoolean(false);
-
-    // Statistics manager objects from the client
-    ClientStatsContext periodicStatsContext;
-    ClientStatsContext fullStatsContext;
-
-    // reviewer benchmark state
-    AtomicLong acceptedReviews = new AtomicLong(0);
-    AtomicLong badBookReviews = new AtomicLong(0);
-    AtomicLong badReviewCountReviews = new AtomicLong(0);
-    AtomicLong failedReviews = new AtomicLong(0);
 
     /**
      * Constructor for benchmark instance. Configures VoltDB client and prints
@@ -83,13 +34,6 @@ public class JDBCBenchmark extends Benchmark {
      */
     public JDBCBenchmark(ReviewerConfig config) {
         super(config);
-
-        switchboard = new BookReviewsGenerator(config.books);
-
-        System.out.print(Constants.HORIZONTAL_RULE);
-        System.out.println(" Command Line Configuration");
-        System.out.println(Constants.HORIZONTAL_RULE);
-        System.out.println(config.getConfigDumpString());
     }
 
     /**
@@ -118,42 +62,7 @@ public class JDBCBenchmark extends Benchmark {
         periodicStatsContext = ((IVoltDBConnection) client)
                 .createStatsContext();
         fullStatsContext = ((IVoltDBConnection) client).createStatsContext();
-    }
-
-    /**
-     * Create a Timer task to display performance data on the Review procedure It
-     * calls printStatistics() every displayInterval seconds
-     */
-    public void schedulePeriodicStats() {
-        timer = new Timer();
-        TimerTask statsPrinting = new TimerTask() {
-            @Override
-            public void run() {
-                printStatistics();
-            }
-        };
-        timer.scheduleAtFixedRate(statsPrinting, config.displayinterval * 1000,
-                config.displayinterval * 1000);
-    }
-
-    /**
-     * Prints a one line update on performance that can be printed periodically
-     * during a benchmark.
-     */
-    public synchronized void printStatistics() {
-        ClientStats stats = periodicStatsContext.fetchAndResetBaseline()
-                .getStats();
-        long time = Math
-                .round((stats.getEndTimestamp() - benchmarkStartTS) / 1000.0);
-
-        System.out.printf("%02d:%02d:%02d ", time / 3600, (time / 60) % 60,
-                time % 60);
-        System.out.printf("Throughput %d/s, ", stats.getTxnThroughput());
-        System.out.printf("Aborts/Failures %d/%d, ",
-                stats.getInvocationAborts(), stats.getInvocationErrors());
-        System.out.printf("Avg/95%% Latency %.2f/%.2fms\n",
-                stats.getAverageLatency(), stats.kPercentileLatencyAsDouble(0.95));
-    }
+   }
 
 
     /**
@@ -166,7 +75,7 @@ public class JDBCBenchmark extends Benchmark {
         public void run() {
             while (warmupComplete.get() == false) {
                 // Get the next phone call
-                BookReviewsGenerator.Review call = switchboard.receive();
+                BookReviewsGenerator.Review call = reviewsGenerator.receive();
 
                 // synchronously call the "Review" procedure
                 try {
@@ -182,7 +91,7 @@ public class JDBCBenchmark extends Benchmark {
 
             while (benchmarkComplete.get() == false) {
                 // Get the next phone call
-                BookReviewsGenerator.Review call = switchboard.receive();
+                BookReviewsGenerator.Review call = reviewsGenerator.receive();
 
                 // synchronously call the "Review" procedure
                 try {

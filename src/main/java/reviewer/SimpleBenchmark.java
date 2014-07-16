@@ -29,6 +29,8 @@ import org.voltdb.client.ClientFactory;
 import org.voltdb.client.ClientResponse;
 import org.voltdb.client.ProcCallException;
 import reviewer.common.BookReviewsGenerator;
+import reviewer.common.Constants;
+import reviewer.common.ReviewerConfig;
 
 import java.io.IOException;
 
@@ -37,7 +39,7 @@ public class SimpleBenchmark extends Benchmark {
     public String[] args;
 
     public SimpleBenchmark() {
-        super(null);
+        super(new ReviewerConfig());
     }
 
     public static void main(String[] args) {
@@ -48,12 +50,22 @@ public class SimpleBenchmark extends Benchmark {
 
     public void runBenchmark() {
         System.out.println("Running Simple Benchmark which invokes default REVIEWS.insert stored procedure");
+
         try {
             final Client client = ClientFactory.createClient();
 
             for (String s : args) {
                 client.createConnection(s, Client.VOLTDB_SERVER_PORT);
             }
+
+            System.out.print(Constants.HORIZONTAL_RULE);
+            System.out.println(" Setup & Initialization");
+            System.out.println(Constants.HORIZONTAL_RULE);
+
+
+            // initialize using synchronous call
+            System.out.println("\nPopulating Static Tables\n");
+            client.callProcedure("Initialize", config.books, Constants.BOOK_NAMES_CSV);
 
             BookReviewsGenerator gen = new BookReviewsGenerator(10000);
 
