@@ -17,10 +17,18 @@ public class BookReviewsGenerator {
 
     private final int bookCount;
     private final Random rand = new Random();
+    private final boolean fraud;
 
     public BookReviewsGenerator(final int bookCount) {
         this.bookCount = bookCount;
+        this.fraud = true;
     }
+
+    public BookReviewsGenerator(int bookCount, boolean b) {
+        this.bookCount = bookCount;
+        this.fraud = b;
+    }
+
 
     /**
      * Receives/generates a simulated review
@@ -33,7 +41,7 @@ public class BookReviewsGenerator {
 
         //  introduce an invalid book every 100 call or so to simulate fraud
         //  and invalid entries (something the transaction validates against)
-        if (rand.nextInt(100) == 0) {
+        if (fraud && rand.nextInt(100) == 0) {
             bookId = 999;
         }
 

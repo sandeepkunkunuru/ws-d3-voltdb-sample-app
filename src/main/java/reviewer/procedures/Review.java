@@ -1,5 +1,6 @@
 package reviewer.procedures;
 
+import org.voltdb.ProcInfo;
 import org.voltdb.SQLStmt;
 import org.voltdb.VoltProcedure;
 import org.voltdb.VoltTable;
@@ -9,7 +10,9 @@ import org.voltdb.VoltTable;
  * book and that the reviewer (email of the reviewer) is not above the
  * number of allowed reviews.
  */
-public class    Review extends VoltProcedure {
+
+@ProcInfo(partitionInfo = "reviews.book_id: 2", singlePartition = true)
+public class Review extends VoltProcedure {
 
     // potential return codes
     public static final long REVIEW_SUCCESSFUL = 0;

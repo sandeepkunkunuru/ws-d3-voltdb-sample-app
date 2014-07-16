@@ -41,7 +41,7 @@ public class AsyncBenchmark extends Benchmark {
         ClientConfig clientConfig = new ClientConfig(config.user, config.password, new StatusListener());
         clientConfig.setMaxTransactionsPerSecond(config.ratelimit);
 
-        this.client =  ClientFactory.createClient(clientConfig);
+        this.client = ClientFactory.createClient(clientConfig);
 
         periodicStatsContext = client.createStatsContext();
         fullStatsContext = client.createStatsContext();
@@ -97,7 +97,7 @@ public class AsyncBenchmark extends Benchmark {
         System.out.println("Warming up...");
         final long warmupEndTime = System.currentTimeMillis() + (1000l * config.warmup);
         while (warmupEndTime > System.currentTimeMillis()) {
-            // Get the next phone call
+            // Get the next review
             BookReviewsGenerator.Review call = reviewsGenerator.receive();
 
             // asynchronously call the "Review" procedure
@@ -122,13 +122,13 @@ public class AsyncBenchmark extends Benchmark {
         System.out.println("\nRunning benchmark...");
         final long benchmarkEndTime = System.currentTimeMillis() + (1000l * config.duration);
         while (benchmarkEndTime > System.currentTimeMillis()) {
-            // Get the next phone call
+            // Get the next review
             BookReviewsGenerator.Review call = reviewsGenerator.receive();
 
             // asynchronously call the "Review" procedure
             client.callProcedure(new ReviewerCallback(),
                     "Review",
-                    call.email,
+                    call.email, call.review,
                     call.bookId,
                     config.maxreviews);
         }

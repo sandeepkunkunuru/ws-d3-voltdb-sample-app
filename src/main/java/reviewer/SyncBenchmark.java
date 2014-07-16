@@ -12,6 +12,8 @@
 
 package reviewer;
 
+import org.voltdb.client.ClientConfig;
+import org.voltdb.client.ClientFactory;
 import org.voltdb.client.ClientResponse;
 import reviewer.common.BookReviewsGenerator;
 import reviewer.common.Constants;
@@ -23,6 +25,14 @@ public class SyncBenchmark extends Benchmark {
 
     public SyncBenchmark(ReviewerConfig config) {
         super(config);
+
+        ClientConfig clientConfig = new ClientConfig(config.user, config.password, new StatusListener());
+        clientConfig.setMaxTransactionsPerSecond(config.ratelimit);
+
+        this.client = ClientFactory.createClient(clientConfig);
+
+        periodicStatsContext = client.createStatsContext();
+        fullStatsContext = client.createStatsContext();
     }
 
     /**
@@ -34,19 +44,19 @@ public class SyncBenchmark extends Benchmark {
         @Override
         public void run() {
             while (warmupComplete.get() == false) {
-                // Get the next phone call
+                // Get the next review
                 BookReviewsGenerator.Review call = reviewsGenerator.receive();
 
                 // synchronously call the "Review" procedure
                 try {
-                    client.callProcedure("Review", call.email,
+                    client.callProcedure("Review", call.email, call.review,
                             call.bookId, config.maxreviews);
                 } catch (Exception e) {
                 }
             }
 
             while (benchmarkComplete.get() == false) {
-                // Get the next phone call
+                // Get the next review
                 BookReviewsGenerator.Review call = reviewsGenerator.receive();
 
                 // synchronously call the "Review" procedure
@@ -115,10 +125,12 @@ public class SyncBenchmark extends Benchmark {
             try {
                 client.createConnection(server);
                 break;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 System.err.printf("Connection failed - retrying in %d second(s).\n", sleep / 1000);
-                try { Thread.sleep(sleep); } catch (Exception interruted) {}
+                try {
+                    Thread.sleep(sleep);
+                } catch (Exception interruted) {
+                }
                 if (sleep < 8000) sleep += sleep;
             }
         }

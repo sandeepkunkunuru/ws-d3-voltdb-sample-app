@@ -26,7 +26,7 @@ public class Initialize extends VoltProcedure {
 
         // initialize the data
         for (int i = 0; i < maxBooks; i++)
-            voltQueueSQL(insertBookStmt, EXPECT_SCALAR_MATCH(1), bookArray[i], i + 1);
+            voltQueueSQL(insertBookStmt, EXPECT_SCALAR_MATCH(1), bookArray[i].trim(), i + 1);
         voltExecuteSQL();
 
         return maxBooks;

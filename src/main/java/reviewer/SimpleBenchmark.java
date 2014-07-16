@@ -24,6 +24,7 @@
 
 package reviewer;
 
+import org.voltdb.VoltType;
 import org.voltdb.client.Client;
 import org.voltdb.client.ClientFactory;
 import org.voltdb.client.ClientResponse;
@@ -62,17 +63,22 @@ public class SimpleBenchmark extends Benchmark {
             System.out.println(" Setup & Initialization");
             System.out.println(Constants.HORIZONTAL_RULE);
 
-
             // initialize using synchronous call
             System.out.println("\nPopulating Static Tables\n");
             client.callProcedure("Initialize", config.books, Constants.BOOK_NAMES_CSV);
 
-            BookReviewsGenerator gen = new BookReviewsGenerator(10000);
+            ClientResponse response = client.callProcedure("@AdHoc","select count(*) from books");
+
+            if (response.getStatus() != ClientResponse.SUCCESS) {
+                throw new RuntimeException(response.getStatusString());
+            }
+
+            int bookCount = (Integer)response.getResults()[0].fetchRow(0).get(0, VoltType.INTEGER);
+            BookReviewsGenerator gen = new BookReviewsGenerator(bookCount, false);
 
             for (int i = 0; i < SimpleBenchmark.TXNS; i++) {
                 BookReviewsGenerator.Review review = gen.receive();
-                ClientResponse response =
-                        client.callProcedure("REVIEWS.insert", review.email, review.review, review.bookId);
+                response = client.callProcedure("REVIEWS.insert", review.email, review.review, review.bookId);
 
                 if (response.getStatus() != ClientResponse.SUCCESS) {
                     throw new RuntimeException(response.getStatusString());

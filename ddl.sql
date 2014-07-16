@@ -8,6 +8,7 @@ CREATE TABLE books
     book_id
   )
 );
+PARTITION TABLE books ON COLUMN book_id;
 
 -- reviews table holds every valid review.
 -- reviewers are not allowed to submit more than <x> reviews, x is passed to client application-- reviewer is identified by email
@@ -18,7 +19,7 @@ CREATE TABLE reviews
 , book_id  integer    NOT NULL
 );
 
-PARTITION TABLE reviews ON COLUMN email;
+PARTITION TABLE reviews ON COLUMN book_id;
 
 -- rollup of reviews by email
 CREATE VIEW v_reviews_by_email
@@ -36,4 +37,8 @@ AS
 CREATE PROCEDURE FROM CLASS reviewer.procedures.Initialize;
 CREATE PROCEDURE FROM CLASS reviewer.procedures.Results;
 CREATE PROCEDURE FROM CLASS reviewer.procedures.Review;
-PARTITION PROCEDURE Review ON TABLE reviews COLUMN email;
+CREATE PROCEDURE ReviewsForBook AS SELECT COUNT(*) as num_reviews  FROM reviews, books
+ where reviews.book_id = books.book_id and books.book_name = ?;
+
+-- PARTITION statement is replaced by annotation within stored procedure
+-- PARTITION PROCEDURE Review ON TABLE reviews COLUMN book_id;

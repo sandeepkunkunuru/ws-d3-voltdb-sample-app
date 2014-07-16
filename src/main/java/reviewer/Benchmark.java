@@ -30,6 +30,7 @@ import reviewer.common.BookReviewsGenerator;
 import reviewer.common.Constants;
 import reviewer.common.ReviewerConfig;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -104,14 +105,7 @@ public abstract class Benchmark {
                 acceptedReviews.get(), badBookReviews.get(),
                 badReviewCountReviews.get(), failedReviews.get());
 
-        // 2. Voting results
-        VoltTable result = client.callProcedure("Results").getResults()[0];
-
-        System.out.println("Book Name\t\tReviews Received");
-        while (result.advanceRow()) {
-            System.out.printf("%s\t\t%,14d\n", result.getString(0), result.getLong(2));
-        }
-        System.out.printf("\nThe Winner is: %s\n\n", result.fetchRow(0).getString(0));
+        getResults();
 
         // 3. Performance statistics
         System.out.print(Constants.HORIZONTAL_RULE);
@@ -142,7 +136,18 @@ public abstract class Benchmark {
             System.out.println(stats.latencyHistoReport());
         }
         // 4. Write stats to file if requested
-        client.writeSummaryCSV(stats, config.statsfile);
+        if (!"".equals(config.statsfile.trim())) client.writeSummaryCSV(stats, config.statsfile);
+    }
+
+    public void getResults() throws IOException, ProcCallException {
+        // 2. Voting results
+        VoltTable result = client.callProcedure("Results").getResults()[0];
+
+        System.out.println("Book Name\t\tReviews Received");
+        while (result.advanceRow()) {
+            System.out.printf("%s\t\t%,14d\n", result.getString(0), result.getLong(2));
+        }
+        System.out.printf("\nThe Winner is: %s\n\n", result.fetchRow(0).getString(0));
     }
 
 

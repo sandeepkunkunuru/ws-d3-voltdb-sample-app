@@ -12,15 +12,14 @@
 
 package reviewer;
 
+import org.voltdb.client.ProcCallException;
 import org.voltdb.jdbc.IVoltDBConnection;
 import reviewer.common.BookReviewsGenerator;
 import reviewer.common.Constants;
 import reviewer.common.ReviewerConfig;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.io.IOException;
+import java.sql.*;
 
 public class JDBCBenchmark extends Benchmark {
     // Reference to the database connection we will use
@@ -62,7 +61,7 @@ public class JDBCBenchmark extends Benchmark {
         periodicStatsContext = ((IVoltDBConnection) client)
                 .createStatsContext();
         fullStatsContext = ((IVoltDBConnection) client).createStatsContext();
-   }
+    }
 
 
     /**
@@ -74,7 +73,7 @@ public class JDBCBenchmark extends Benchmark {
         @Override
         public void run() {
             while (warmupComplete.get() == false) {
-                // Get the next phone call
+                // Get the next review
                 BookReviewsGenerator.Review call = reviewsGenerator.receive();
 
                 // synchronously call the "Review" procedure
@@ -90,7 +89,7 @@ public class JDBCBenchmark extends Benchmark {
             }
 
             while (benchmarkComplete.get() == false) {
-                // Get the next phone call
+                // Get the next review
                 BookReviewsGenerator.Review call = reviewsGenerator.receive();
 
                 // synchronously call the "Review" procedure
@@ -191,6 +190,29 @@ public class JDBCBenchmark extends Benchmark {
         // close down the client connections
         client.close();
     }
+
+    public void getResults() throws IOException, ProcCallException {
+        try {
+            final PreparedStatement reviewCS = client
+                    .prepareCall("{call Results()}");
+
+            try {
+                ResultSet result = reviewCS.executeQuery();
+
+                System.out.println("Book Name\t\tReviews Received");
+                while (result.next()) {
+                    System.out.printf("%s\t\t%,14d\n", result.getString(0), result.getLong(2));
+                }
+                System.out.printf("\nThe Winner is: %s\n\n", result.getString(0));
+                acceptedReviews.incrementAndGet();
+            } catch (Exception x) {
+                badReviewCountReviews.incrementAndGet();
+            }
+        } catch (Exception e) {
+            failedReviews.incrementAndGet();
+        }
+    }
+
 
     /**
      * Main routine creates a benchmark instance and kicks off the run method.
