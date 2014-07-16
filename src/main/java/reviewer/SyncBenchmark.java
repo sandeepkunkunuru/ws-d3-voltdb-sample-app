@@ -34,7 +34,6 @@
 
 package reviewer;
 
-import org.voltdb.CLIConfig;
 import org.voltdb.VoltTable;
 import org.voltdb.client.*;
 
@@ -47,7 +46,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SyncBenchmark {
 
     // Initialize some common constants and variables
-    static final String CONTESTANT_NAMES_CSV =
+    static final String BOOK_NAMES_CSV =
             "Edwina Burnam,Tabatha Gehling,Kelly Clauss,Jessie Alloway," +
             "Alana Bregman,Jessie Eichman,Allie Rogalski,Nita Coster," +
             "Kurt Walser,Ericka Dieter,Loraine NygrenTania Mattioli";
@@ -58,10 +57,10 @@ public class SyncBenchmark {
             "----------" + "----------" + "----------" + "----------" + "\n";
 
     // validated command line configuration
-    final ReviewrConfig config;
+    final ReviewerConfig config;
     // Reference to the database connection we will use
     final Client client;
-    // Phone number generator
+    // Email generator
     BookReviewsGenerator switchboard;
     // Timer for periodic stats printing
     Timer timer;
@@ -79,48 +78,6 @@ public class SyncBenchmark {
     AtomicLong badBookReviews = new AtomicLong(0);
     AtomicLong badReviewCountReviews = new AtomicLong(0);
     AtomicLong failedReviews = new AtomicLong(0);
-
-    /**
-     * Uses included {@link CLIConfig} class to
-     * declaratively state command line options with defaults
-     * and validation.
-     */
-    static class ReviewrConfig extends CLIConfig {
-        @Option(desc = "Interval for performance feedback, in seconds.")
-        long displayinterval = 5;
-
-        @Option(desc = "Benchmark duration, in seconds.")
-        int duration = 120;
-
-        @Option(desc = "Warmup duration in seconds.")
-        int warmup = 5;
-
-        @Option(desc = "Comma separated list of the form server[:port] to connect to.")
-        String servers = "localhost";
-
-        @Option(desc = "Number of books in the voting contest (from 1 to 10).")
-        int books = 6;
-
-        @Option(desc = "Maximum number of reviews cast per reviewer.")
-        int maxreviews = 2;
-
-        @Option(desc = "Filename to write raw summary statistics to.")
-        String statsfile = "";
-
-        @Option(desc = "Number of concurrent threads synchronously calling procedures.")
-        int threads = 40;
-
-        @Override
-        public void validate() {
-            if (duration <= 0) exitWithMessageAndUsage("duration must be > 0");
-            if (warmup < 0) exitWithMessageAndUsage("warmup must be >= 0");
-            if (duration < 0) exitWithMessageAndUsage("warmup must be >= 0");
-            if (displayinterval <= 0) exitWithMessageAndUsage("displayinterval must be > 0");
-            if (books <= 0) exitWithMessageAndUsage("books must be > 0");
-            if (maxreviews <= 0) exitWithMessageAndUsage("maxreviews must be > 0");
-            if (threads <= 0) exitWithMessageAndUsage("threads must be > 0");
-        }
-    }
 
     /**
      * Provides a callback to be notified on node failure.
@@ -142,7 +99,7 @@ public class SyncBenchmark {
      *
      * @param config Parsed & validated CLI options.
      */
-    public SyncBenchmark(ReviewrConfig config) {
+    public SyncBenchmark(ReviewerConfig config) {
         this.config = config;
 
         ClientConfig clientConfig = new ClientConfig("", "", new StatusListener());
@@ -311,7 +268,7 @@ public class SyncBenchmark {
      * synchronous procedure calls as possible and record the results.
      *
      */
-    class ReviewrThread implements Runnable {
+    class ReviewerThread implements Runnable {
 
         @Override
         public void run() {
@@ -321,7 +278,7 @@ public class SyncBenchmark {
 
                 // synchronously call the "Review" procedure
                 try {
-                    client.callProcedure("Review", call.phoneNumber,
+                    client.callProcedure("Review", call.email,
                             call.bookId, config.maxreviews);
                 }
                 catch (Exception e) {}
@@ -334,7 +291,7 @@ public class SyncBenchmark {
                 // synchronously call the "Review" procedure
                 try {
                     ClientResponse response = client.callProcedure("Review",
-                                                                   call.phoneNumber,
+                                                                   call.email,
                                                                    call.bookId,
                                                                    config.maxreviews);
 
@@ -375,7 +332,7 @@ public class SyncBenchmark {
 
         // initialize using synchronous call
         System.out.println("\nPopulating Static Tables\n");
-        client.callProcedure("Initialize", config.books, CONTESTANT_NAMES_CSV);
+        client.callProcedure("Initialize", config.books, BOOK_NAMES_CSV);
 
         System.out.print(HORIZONTAL_RULE);
         System.out.println(" Starting Benchmark");
@@ -384,7 +341,7 @@ public class SyncBenchmark {
         // create/start the requested number of threads
         Thread[] reviewrThreads = new Thread[config.threads];
         for (int i = 0; i < config.threads; ++i) {
-            reviewrThreads[i] = new Thread(new ReviewrThread());
+            reviewrThreads[i] = new Thread(new ReviewerThread());
             reviewrThreads[i].start();
         }
 
@@ -433,11 +390,11 @@ public class SyncBenchmark {
      *
      * @param args Command line arguments.
      * @throws Exception if anything goes wrong.
-     * @see {@link ReviewrConfig}
+     * @see {@link ReviewerConfig}
      */
     public static void main(String[] args) throws Exception {
         // create a configuration from the arguments
-        ReviewrConfig config = new ReviewrConfig();
+        ReviewerConfig config = new ReviewerConfig();
         config.parse(SyncBenchmark.class.getName(), args);
 
         SyncBenchmark benchmark = new SyncBenchmark(config);

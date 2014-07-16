@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class AsyncBenchmark {
 
     // Initialize some common constants and variables
-    static final String CONTESTANT_NAMES_CSV =
+    static final String BOOK_NAMES_CSV =
             "Edwina Burnam,Tabatha Gehling,Kelly Clauss,Jessie Alloway," +
             "Alana Bregman,Jessie Eichman,Allie Rogalski,Nita Coster," +
             "Kurt Walser,Ericka Dieter,Loraine NygrenTania Mattioli";
@@ -65,10 +65,10 @@ public class AsyncBenchmark {
             "----------" + "----------" + "----------" + "----------" + "\n";
 
     // validated command line configuration
-    final ReviewrConfig config;
+    final ReviewerConfig config;
     // Reference to the database connection we will use
     final Client client;
-    // Phone number generator
+    // Email generator
     BookReviewsGenerator switchboard;
     // Timer for periodic stats printing
     Timer timer;
@@ -89,7 +89,7 @@ public class AsyncBenchmark {
      * declaratively state command line options with defaults
      * and validation.
      */
-    static class ReviewrConfig extends CLIConfig {
+    static class ReviewerConfig extends CLIConfig {
         @Option(desc = "Interval for performance feedback, in seconds.")
         long displayinterval = 5;
 
@@ -102,7 +102,7 @@ public class AsyncBenchmark {
         @Option(desc = "Comma separated list of the form server[:port] to connect to.")
         String servers = "localhost";
 
-        @Option(desc = "Number of books in the voting contest (from 1 to 10).")
+        @Option(desc = "Number of books in the reviewing time window (from 1 to 10).")
         int books = 6;
 
         @Option(desc = "Maximum number of reviews cast per reviewer.")
@@ -154,7 +154,7 @@ public class AsyncBenchmark {
      *
      * @param config Parsed & validated CLI options.
      */
-    public AsyncBenchmark(ReviewrConfig config) {
+    public AsyncBenchmark(ReviewerConfig config) {
         this.config = config;
 
         ClientConfig clientConfig = new ClientConfig(config.user, config.password, new StatusListener());
@@ -330,7 +330,7 @@ public class AsyncBenchmark {
      * Tracks response types.
      *
      */
-    class ReviewrCallback implements ProcedureCallback {
+    class ReviewerCallback implements ProcedureCallback {
         @Override
         public void clientCallback(ClientResponse response) throws Exception {
             if (response.getStatus() == ClientResponse.SUCCESS) {
@@ -368,7 +368,7 @@ public class AsyncBenchmark {
 
         // initialize using synchronous call
         System.out.println("\nPopulating Static Tables\n");
-        client.callProcedure("Initialize", config.books, CONTESTANT_NAMES_CSV);
+        client.callProcedure("Initialize", config.books, BOOK_NAMES_CSV);
 
         System.out.print(HORIZONTAL_RULE);
         System.out.println(" Starting Benchmark");
@@ -385,7 +385,7 @@ public class AsyncBenchmark {
             // asynchronously call the "Review" procedure
             client.callProcedure(new NullCallback(),
                                  "Review",
-                                 call.phoneNumber,
+                                 call.email,
                                  call.bookId,
                                  config.maxreviews);
         }
@@ -408,9 +408,9 @@ public class AsyncBenchmark {
             BookReviewsGenerator.Review call = switchboard.receive();
 
             // asynchronously call the "Review" procedure
-            client.callProcedure(new ReviewrCallback(),
+            client.callProcedure(new ReviewerCallback(),
                                  "Review",
-                                 call.phoneNumber,
+                                 call.email,
                                  call.bookId,
                                  config.maxreviews);
         }
@@ -433,11 +433,11 @@ public class AsyncBenchmark {
      *
      * @param args Command line arguments.
      * @throws Exception if anything goes wrong.
-     * @see {@link ReviewrConfig}
+     * @see {@link ReviewerConfig}
      */
     public static void main(String[] args) throws Exception {
         // create a configuration from the arguments
-        ReviewrConfig config = new ReviewrConfig();
+        ReviewerConfig config = new ReviewerConfig();
         config.parse(AsyncBenchmark.class.getName(), args);
 
         AsyncBenchmark benchmark = new AsyncBenchmark(config);

@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class JDBCBenchmark {
 
     // Initialize some common constants and variables
-    static final String CONTESTANT_NAMES_CSV = "Edwina Burnam,Tabatha Gehling,Kelly Clauss,Jessie Alloway,"
+    static final String BOOK_NAMES_CSV = "Edwina Burnam,Tabatha Gehling,Kelly Clauss,Jessie Alloway,"
             + "Alana Bregman,Jessie Eichman,Allie Rogalski,Nita Coster,"
             + "Kurt Walser,Ericka Dieter,Loraine NygrenTania Mattioli";
 
@@ -59,10 +59,10 @@ public class JDBCBenchmark {
             + "----------" + "----------" + "\n";
 
     // validated command line configuration
-    final ReviewrConfig config;
+    final ReviewerConfig config;
     // Reference to the database connection we will use
     Connection client;
-    // Phone number generator
+    // Email generator
     BookReviewsGenerator switchboard;
     // Timer for periodic stats printing
     Timer timer;
@@ -85,7 +85,7 @@ public class JDBCBenchmark {
      * Uses included {@link CLIConfig} class to declaratively state command line
      * options with defaults and validation.
      */
-    static class ReviewrConfig extends CLIConfig {
+    static class ReviewerConfig extends CLIConfig {
         @Option(desc = "Interval for performance feedback, in seconds.")
         long displayinterval = 5;
 
@@ -98,7 +98,7 @@ public class JDBCBenchmark {
         @Option(desc = "Comma separated list of the form server[:port] to connect to.")
         String servers = "localhost";
 
-        @Option(desc = "Number of books in the voting contest (from 1 to 10).")
+        @Option(desc = "Number of books in the reviewing time window (from 1 to 10).")
         int books = 6;
 
         @Option(desc = "Maximum number of reviews cast per reviewer.")
@@ -152,7 +152,7 @@ public class JDBCBenchmark {
      * @param config
      *            Parsed & validated CLI options.
      */
-    public JDBCBenchmark(ReviewrConfig config) {
+    public JDBCBenchmark(ReviewerConfig config) {
         this.config = config;
 
         switchboard = new BookReviewsGenerator(config.books);
@@ -316,7 +316,7 @@ public class JDBCBenchmark {
      * synchronous procedure calls as possible and record the results.
      *
      */
-    class ReviewrThread implements Runnable {
+    class ReviewerThread implements Runnable {
 
         @Override
         public void run() {
@@ -328,7 +328,7 @@ public class JDBCBenchmark {
                 try {
                     final PreparedStatement reviewCS = client
                             .prepareCall("{call Review(?,?,?)}");
-                    reviewCS.setLong(1, call.phoneNumber);
+                    reviewCS.setLong(1, call.email);
                     reviewCS.setInt(2, call.bookId);
                     reviewCS.setLong(3, config.maxreviews);
                 } catch (Exception e) {
@@ -344,7 +344,7 @@ public class JDBCBenchmark {
 
                     final PreparedStatement reviewCS = client
                             .prepareCall("{call Review(?,?,?)}");
-                    reviewCS.setLong(1, call.phoneNumber);
+                    reviewCS.setLong(1, call.email);
                     reviewCS.setInt(2, call.bookId);
                     reviewCS.setLong(3, config.maxreviews);
 
@@ -384,7 +384,7 @@ public class JDBCBenchmark {
         final PreparedStatement initializeCS = client
                 .prepareCall("{call Initialize(?,?)}");
         initializeCS.setInt(1, config.books);
-        initializeCS.setString(2, CONTESTANT_NAMES_CSV);
+        initializeCS.setString(2, BOOK_NAMES_CSV);
         initializeCS.executeUpdate();
 
         System.out.print(HORIZONTAL_RULE);
@@ -394,7 +394,7 @@ public class JDBCBenchmark {
         // create/start the requested number of threads
         Thread[] reviewrThreads = new Thread[config.threads];
         for (int i = 0; i < config.threads; ++i) {
-            reviewrThreads[i] = new Thread(new ReviewrThread());
+            reviewrThreads[i] = new Thread(new ReviewerThread());
             reviewrThreads[i].start();
         }
 
@@ -445,11 +445,11 @@ public class JDBCBenchmark {
      *            Command line arguments.
      * @throws Exception
      *             if anything goes wrong.
-     * @see {@link ReviewrConfig}
+     * @see {@link ReviewerConfig}
      */
     public static void main(String[] args) throws Exception {
         // create a configuration from the arguments
-        ReviewrConfig config = new ReviewrConfig();
+        ReviewerConfig config = new ReviewerConfig();
         config.parse(JDBCBenchmark.class.getName(), args);
 
         JDBCBenchmark benchmark = new JDBCBenchmark(config);

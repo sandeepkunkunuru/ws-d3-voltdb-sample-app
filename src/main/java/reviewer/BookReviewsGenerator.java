@@ -57,11 +57,11 @@ public class BookReviewsGenerator {
 
     public static class Review {
         public final int bookId;
-        public final long phoneNumber;
+        public final long email;
 
-        protected Review(int bookId, long phoneNumber) {
+        protected Review(int bookId, long email) {
             this.bookId = bookId;
-            this.phoneNumber = phoneNumber;
+            this.email = email;
         }
     }
 
@@ -107,9 +107,9 @@ public class BookReviewsGenerator {
         }
 
         // Build the phone number
-        long phoneNumber = AREA_CODES[areaCodeIndex] * 10000000L + rand.nextInt(10000000);
+        long email = AREA_CODES[areaCodeIndex] * 10000000L + rand.nextInt(10000000);
 
         // Return the generated phone number
-        return new Review(bookId, phoneNumber);
+        return new Review(bookId, email);
     }
 }
