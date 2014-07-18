@@ -83,7 +83,7 @@ public abstract class Benchmark {
     public abstract void runBenchmark() throws Exception;
 
     /**
-     * Prints the results of the voting simulation and statistics
+     * Prints the results of the simulation and statistics
      * about performance.
      *
      * @throws Exception if anything unexpected happens.
@@ -91,10 +91,10 @@ public abstract class Benchmark {
     public synchronized void printResults() throws Exception {
         ClientStats stats = fullStatsContext.fetch().getStats();
 
-        // 1. Voting Board statistics, Voting results and performance statistics
+        // 1. results and performance statistics
         String display = "\n" +
                 Constants.HORIZONTAL_RULE +
-                " Voting Results\n" +
+                " Results\n" +
                 Constants.HORIZONTAL_RULE +
                 "\nA total of %d reviews were received...\n" +
                 " - %,9d Accepted\n" +
@@ -140,7 +140,7 @@ public abstract class Benchmark {
     }
 
     public void getResults() throws IOException, ProcCallException {
-        // 2. Voting results
+        // 2. results
         VoltTable result = client.callProcedure("Results").getResults()[0];
 
         System.out.println("Book Name\t\tReviews Received");

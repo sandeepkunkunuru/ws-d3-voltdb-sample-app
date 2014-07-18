@@ -133,6 +133,9 @@ public class AsyncBenchmark extends Benchmark {
                     config.maxreviews);
         }
 
+        // stop the threads
+        benchmarkComplete.set(true);
+
         // cancel periodic stats printing
         timer.cancel();
 
