@@ -115,8 +115,9 @@ function async-benchmark() {
         --duration=120 \
         --servers=localhost:21212 \
         --books=6 \
-        --maxreviews=2
-#        --latencyreport=true \
+        --maxreviews=2 \
+        --latencyreport=true \
+        --statsfile=Results.csv 
 #        --ratelimit=100000
 }
 
