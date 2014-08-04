@@ -8,6 +8,7 @@
     </JAVADOC>
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/org/voltdb/voltdb-client/4.4/voltdb-client-4.4-sources.jar!/" />
+      <root url="file://$PROJECT_DIR$/../voltdb/src/frontend" />
     </SOURCES>
   </library>
 </component>

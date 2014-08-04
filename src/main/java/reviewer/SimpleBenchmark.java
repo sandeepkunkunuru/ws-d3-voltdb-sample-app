@@ -29,9 +29,10 @@ import org.voltdb.client.Client;
 import org.voltdb.client.ClientFactory;
 import org.voltdb.client.ClientResponse;
 import org.voltdb.client.ProcCallException;
-import reviewer.common.BookReviewsGenerator;
-import reviewer.common.Constants;
-import reviewer.common.ReviewerConfig;
+import common.BookReviewsGenerator;
+import common.Constants;
+import common.ReviewerConfig;
+import util.StdOut;
 
 import java.io.IOException;
 
@@ -50,7 +51,7 @@ public class SimpleBenchmark extends Benchmark {
     }
 
     public void runBenchmark() {
-        System.out.println("Running Simple Benchmark which invokes default REVIEWS.insert stored procedure");
+        StdOut.println("Running Simple Benchmark which invokes default REVIEWS.insert stored procedure");
 
         try {
             final Client client = ClientFactory.createClient();
@@ -59,12 +60,12 @@ public class SimpleBenchmark extends Benchmark {
                 client.createConnection(s, Client.VOLTDB_SERVER_PORT);
             }
 
-            System.out.print(Constants.HORIZONTAL_RULE);
-            System.out.println(" Setup & Initialization");
-            System.out.println(Constants.HORIZONTAL_RULE);
+            StdOut.print(Constants.HORIZONTAL_RULE);
+            StdOut.println(" Setup & Initialization");
+            StdOut.println(Constants.HORIZONTAL_RULE);
 
             // initialize using synchronous call
-            System.out.println("\nPopulating Static Tables\n");
+            StdOut.println("\nPopulating Static Tables\n");
             client.callProcedure("Initialize", config.books, Constants.BOOK_NAMES_CSV);
 
             ClientResponse response = client.callProcedure("@AdHoc","select count(*) from books");
@@ -85,7 +86,7 @@ public class SimpleBenchmark extends Benchmark {
                 }
 
                 if (i % 1000 == 0) {
-                    System.out.printf(".");
+                    StdOut.printf(".");
                 }
             }
         } catch (IOException e) {
@@ -94,6 +95,16 @@ public class SimpleBenchmark extends Benchmark {
             throw new RuntimeException(e);
         }
 
-        System.out.println(" completed " + SimpleBenchmark.TXNS + " transactions.");
+        StdOut.println(" completed " + SimpleBenchmark.TXNS + " transactions.");
+    }
+
+    @Override
+    protected void getSummaryCSV() throws IOException {
+
+    }
+
+    @Override
+    public void getResults() throws IOException, ProcCallException {
+
     }
 }

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package reviewer.common;
+package common;
 
 import org.voltdb.CLIConfig;
 

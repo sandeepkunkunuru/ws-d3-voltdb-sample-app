@@ -10,23 +10,26 @@
  * blazing speeds when many clients are connected to it.
  */
 
-package reviewer;
+package reviewer.jdbc;
 
+import common.DBConnection;
 import org.voltdb.client.ProcCallException;
 import org.voltdb.jdbc.IVoltDBConnection;
-import reviewer.common.BookReviewsGenerator;
-import reviewer.common.Constants;
-import reviewer.common.ReviewerConfig;
+import reviewer.Benchmark;
+import common.BookReviewsGenerator;
+import common.Constants;
+import common.ReviewerConfig;
+import util.StdOut;
 
 import java.io.IOException;
 import java.sql.*;
 
 public class JDBCBenchmark extends Benchmark {
     // Reference to the database connection we will use
-    Connection client;
+    Connection connection;
 
     /**
-     * Constructor for benchmark instance. Configures VoltDB client and prints
+     * Constructor for benchmark instance. Configures VoltDB connection and prints
      * configuration.
      *
      * @param config Parsed & validated CLI options.
@@ -47,20 +50,10 @@ public class JDBCBenchmark extends Benchmark {
      */
     void connect(String servers) throws InterruptedException,
             ClassNotFoundException, SQLException {
-        System.out.println("Connecting to VoltDB...");
+        connection = DBConnection.getJDBCConnection(config.servers);
 
-        // We need only do this once, to "hot cache" the JDBC driver reference
-        // so the JVM may realize it's there.
-        Class.forName("org.voltdb.jdbc.Driver");
-
-        // Prepare the JDBC URL for the VoltDB driver
-        String url = "jdbc:voltdb://" + config.servers;
-
-        client = DriverManager.getConnection(url, "", "");
-
-        periodicStatsContext = ((IVoltDBConnection) client)
-                .createStatsContext();
-        fullStatsContext = ((IVoltDBConnection) client).createStatsContext();
+        periodicStatsContext = ((IVoltDBConnection) connection).createStatsContext();
+        fullStatsContext = ((IVoltDBConnection) connection).createStatsContext();
     }
 
 
@@ -78,7 +71,7 @@ public class JDBCBenchmark extends Benchmark {
 
                 // synchronously call the "Review" procedure
                 try {
-                    final PreparedStatement reviewCS = client
+                    final PreparedStatement reviewCS = connection
                             .prepareCall("{call Review(?,?,?,?)}");
                     reviewCS.setString(1, call.email);
                     reviewCS.setString(2, call.review);
@@ -95,7 +88,7 @@ public class JDBCBenchmark extends Benchmark {
                 // synchronously call the "Review" procedure
                 try {
 
-                    final PreparedStatement reviewCS = client
+                    final PreparedStatement reviewCS = connection
                             .prepareCall("{call Review(?,?,?,?)}");
                     reviewCS.setString(1, call.email);
                     reviewCS.setString(2, call.review);
@@ -103,10 +96,18 @@ public class JDBCBenchmark extends Benchmark {
                     reviewCS.setLong(4, config.maxreviews);
 
                     try {
-                        reviewCS.executeUpdate();
-                        acceptedReviews.incrementAndGet();
+                        long resultCode = reviewCS.executeUpdate();
+
+                        if (resultCode == Constants.ERR_INVALID_BOOK) {
+                            badBookReviews.incrementAndGet();
+                        } else if (resultCode == Constants.ERR_REVIEWER_OVER_REVIEW_LIMIT) {
+                            badReviewCountReviews.incrementAndGet();
+                        } else {
+                            assert (resultCode == Constants.REVIEW_SUCCESSFUL);
+                            acceptedReviews.incrementAndGet();
+                        }
                     } catch (Exception x) {
-                        badReviewCountReviews.incrementAndGet();
+                        failedReviews.incrementAndGet();
                     }
                 } catch (Exception e) {
                     failedReviews.incrementAndGet();
@@ -124,25 +125,25 @@ public class JDBCBenchmark extends Benchmark {
      * @throws Exception if anything unexpected happens.
      */
     public void runBenchmark() throws Exception {
-        System.out.print(Constants.HORIZONTAL_RULE);
-        System.out.println(" Setup & Initialization");
-        System.out.println(Constants.HORIZONTAL_RULE);
+        StdOut.print(Constants.HORIZONTAL_RULE);
+        StdOut.println(" Setup & Initialization");
+        StdOut.println(Constants.HORIZONTAL_RULE);
 
         // connect to one or more servers, loop until success
         connect(config.servers);
 
         // initialize using synchronous call
         // Initialize the application
-        System.out.println("\nPopulating Static Tables\n");
-        final PreparedStatement initializeCS = client
+        StdOut.println("\nPopulating Static Tables\n");
+        final PreparedStatement initializeCS = connection
                 .prepareCall("{call Initialize(?,?)}");
         initializeCS.setInt(1, config.books);
         initializeCS.setString(2, Constants.BOOK_NAMES_CSV);
         initializeCS.executeUpdate();
 
-        System.out.print(Constants.HORIZONTAL_RULE);
-        System.out.println(" Starting Benchmark");
-        System.out.println(Constants.HORIZONTAL_RULE);
+        StdOut.print(Constants.HORIZONTAL_RULE);
+        StdOut.println(" Starting Benchmark");
+        StdOut.println(Constants.HORIZONTAL_RULE);
 
         // create/start the requested number of threads
         Thread[] reviewrThreads = new Thread[config.threads];
@@ -152,7 +153,7 @@ public class JDBCBenchmark extends Benchmark {
         }
 
         // Run the benchmark loop for the requested warmup time
-        System.out.println("Warming up...");
+        StdOut.println("Warming up...");
         Thread.sleep(1000l * config.warmup);
 
         // signal to threads to end the warmup phase
@@ -167,7 +168,7 @@ public class JDBCBenchmark extends Benchmark {
         schedulePeriodicStats();
 
         // Run the benchmark loop for the requested warmup time
-        System.out.println("\nRunning benchmark...");
+        StdOut.println("\nRunning benchmark...");
         Thread.sleep(1000l * config.duration);
 
         // stop the threads
@@ -177,7 +178,7 @@ public class JDBCBenchmark extends Benchmark {
         timer.cancel();
 
         // block until all outstanding txns return
-        // client.drain();
+        // connection.drain();
 
         // join on the threads
         for (Thread t : reviewrThreads) {
@@ -187,23 +188,30 @@ public class JDBCBenchmark extends Benchmark {
         // print the summary results
         printResults();
 
-        // close down the client connections
-        client.close();
+        // close down the connection connections
+        connection.close();
+    }
+
+    @Override
+    protected void getSummaryCSV() throws IOException {
+        // 4. Write stats to file if requested
+        if (!"".equals(config.statsfile.trim()))
+            ((IVoltDBConnection)connection).writeSummaryCSV(fullStatsContext.fetch().getStats(), config.statsfile);
     }
 
     public void getResults() throws IOException, ProcCallException {
         try {
-            final PreparedStatement reviewCS = client
+            final PreparedStatement reviewCS = connection
                     .prepareCall("{call Results()}");
 
             try {
                 ResultSet result = reviewCS.executeQuery();
 
-                System.out.println("Book Name\t\tReviews Received");
+                StdOut.println("Book Name\t\tReviews Received");
                 while (result.next()) {
-                    System.out.printf("%s\t\t%,14d\n", result.getString(0), result.getLong(2));
+                    StdOut.printf("%s\t\t%,14d\n", result.getString(0), result.getLong(2));
                 }
-                System.out.printf("\nThe Winner is: %s\n\n", result.getString(0));
+                StdOut.printf("\nThe Winner is: %s\n\n", result.getString(0));
                 acceptedReviews.incrementAndGet();
             } catch (Exception x) {
                 badReviewCountReviews.incrementAndGet();
@@ -224,9 +232,9 @@ public class JDBCBenchmark extends Benchmark {
     public static void main(String[] args) throws Exception {
         // create a configuration from the arguments
         ReviewerConfig config = new ReviewerConfig();
-        config.parse(JDBCBenchmark.class.getName(), args);
+        config.parse(Benchmark.class.getName(), args);
 
-        JDBCBenchmark benchmark = new JDBCBenchmark(config);
+        Benchmark benchmark = new JDBCBenchmark(config);
         benchmark.runBenchmark();
     }
 }

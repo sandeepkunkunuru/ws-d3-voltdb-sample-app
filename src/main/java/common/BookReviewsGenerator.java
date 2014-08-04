@@ -1,4 +1,6 @@
-package reviewer.common;
+package common;
+
+import util.RandomTextGenerator;
 
 import java.util.Random;
 
@@ -53,7 +55,7 @@ public class BookReviewsGenerator {
         // Build review
         String review = RandomTextGenerator.generateText(75, Constants.PERMISSIBLE_REVIEW_CHARACTERS);
 
-        //System.out.println(bookId + "------" + email + "------" + review + "------");
+        //StdOut.println(bookId + "------" + email + "------" + review + "------");
 
         return new Review(bookId, email, review);
     }

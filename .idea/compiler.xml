@@ -23,8 +23,12 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="book_reviews" />
+        <module name="ws-d3-voltdb-sample-app" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ws-d3-voltdb-sample-app" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>
 

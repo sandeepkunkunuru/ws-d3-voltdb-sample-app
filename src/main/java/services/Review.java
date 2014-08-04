@@ -22,24 +22,36 @@
  * THE SOFTWARE.
  */
 
-package reviewer.common;
+package services;
 
-import java.util.Random;
+import javax.websocket.*;
 
 /**
- * Created by sandeep on 7/16/14.
+ * Created by sandeep on 7/29/14.
  */
-public class RandomTextGenerator {
+public class Review implements Encoder.Text<Review>, Decoder.Text<Review> {
+    @Override
+    public Review decode(String s) throws DecodeException {
+        return null;
+    }
 
-    public static String generateText(int length, char[] permissibleCharacters) {
-        Random rand = new Random();
+    @Override
+    public boolean willDecode(String s) {
+        return false;
+    }
 
-        StringBuilder str = new StringBuilder();
+    @Override
+    public void init(EndpointConfig endpointConfig) {
 
-        while (str.length() < length) {
-            str.append(permissibleCharacters[rand.nextInt(permissibleCharacters.length)]);
-        }
+    }
 
-        return str.toString();
+    @Override
+    public void destroy() {
+
+    }
+
+    @Override
+    public String encode(Review preferences) throws EncodeException {
+        return null;
     }
 }

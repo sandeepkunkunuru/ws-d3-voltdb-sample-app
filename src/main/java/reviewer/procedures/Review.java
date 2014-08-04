@@ -1,5 +1,6 @@
 package reviewer.procedures;
 
+import common.Constants;
 import org.voltdb.ProcInfo;
 import org.voltdb.SQLStmt;
 import org.voltdb.VoltProcedure;
@@ -13,11 +14,6 @@ import org.voltdb.VoltTable;
 
 @ProcInfo(partitionInfo = "reviews.book_id: 2", singlePartition = true)
 public class Review extends VoltProcedure {
-
-    // potential return codes
-    public static final long REVIEW_SUCCESSFUL = 0;
-    public static final long ERR_INVALID_BOOK = 1;
-    public static final long ERR_REVIEWER_OVER_REVIEW_LIMIT = 2;
 
     // Checks if the review is for a valid book
     public final SQLStmt checkBookStmt = new SQLStmt(
@@ -38,12 +34,12 @@ public class Review extends VoltProcedure {
         VoltTable validation[] = voltExecuteSQL();
 
         if (validation[0].getRowCount() == 0) {
-            return ERR_INVALID_BOOK;
+            return Constants.ERR_INVALID_BOOK;
         }
 
         if ((validation[1].getRowCount() == 1) &&
                 (validation[1].asScalarLong() >= maxReviewsPerEmail)) {
-            return ERR_REVIEWER_OVER_REVIEW_LIMIT;
+            return Constants.ERR_REVIEWER_OVER_REVIEW_LIMIT;
         }
 
         // Post the review
@@ -51,6 +47,6 @@ public class Review extends VoltProcedure {
         voltExecuteSQL(true);
 
         // Set the return value to 0: successful review
-        return REVIEW_SUCCESSFUL;
+        return Constants.REVIEW_SUCCESSFUL;
     }
 }

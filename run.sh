@@ -43,15 +43,18 @@ HOST="localhost"
 
 # remove build artifacts
 function clean() {
-    rm -rf obj debugoutput $APPNAME.jar voltdbroot voltdbroot
+    rm -rf obj debugoutput $APPNAME.jar voltdbroot statement-plans log
 }
 
 # compile the source code for procedures and the client
 function srccompile() {
     mkdir -p obj
     javac -target 1.7 -source 1.7 -classpath $APPCLASSPATH -d obj \
-        src/main/java/reviewer/common/*.java \
+        src/main/java/util/*.java \
+        src/main/java/common/*.java \
         src/main/java/reviewer/procedures/*.java \
+        src/main/java/reviewer/native_api/*.java \
+        src/main/java/reviewer/jdbc/*.java \
         src/main/java/reviewer/*.java
     # stop if compilation fails
     if [ $? != 0 ]; then exit; fi
@@ -100,7 +103,7 @@ function client() {
 # Use this target for argument help
 function async-benchmark-help() {
     srccompile
-    java -classpath obj:$CLIENTCLASSPATH:obj reviewer.AsyncBenchmark --help
+    java -classpath obj:$CLIENTCLASSPATH:obj reviewer.native_api.AsyncBenchmark --help
 }
 
 # latencyreport: default is OFF
@@ -109,7 +112,7 @@ function async-benchmark-help() {
 function async-benchmark() {
     srccompile
     java -classpath obj:$CLIENTCLASSPATH:obj -Dlog4j.configuration=file://$LOG4J \
-        reviewer.AsyncBenchmark \
+        reviewer.native_api.AsyncBenchmark \
         --displayinterval=5 \
         --warmup=5 \
         --duration=120 \
@@ -131,13 +134,13 @@ function simple-benchmark() {
 # Use this target for argument help
 function sync-benchmark-help() {
     srccompile
-    java -classpath obj:$CLIENTCLASSPATH:obj reviewer.SyncBenchmark --help
+    java -classpath obj:$CLIENTCLASSPATH:obj reviewer.native_api.SyncBenchmark --help
 }
 
 function sync-benchmark() {
     srccompile
     java -classpath obj:$CLIENTCLASSPATH:obj -Dlog4j.configuration=file://$LOG4J \
-        reviewer.SyncBenchmark \
+        reviewer.native_api.SyncBenchmark \
         --displayinterval=5 \
         --warmup=5 \
         --duration=120 \
@@ -151,13 +154,13 @@ function sync-benchmark() {
 # Use this target for argument help
 function jdbc-benchmark-help() {
     srccompile
-    java -classpath obj:$CLIENTCLASSPATH:obj reviewer.JDBCBenchmark --help
+    java -classpath obj:$CLIENTCLASSPATH:obj reviewer.jdbc.JDBCBenchmark --help
 }
 
 function jdbc-benchmark() {
     srccompile
     java -classpath obj:$CLIENTCLASSPATH:obj -Dlog4j.configuration=file://$LOG4J \
-        reviewer.JDBCBenchmark \
+        reviewer.jdbc.JDBCBenchmark \
         --displayinterval=5 \
         --duration=120 \
         --maxreviews=2 \

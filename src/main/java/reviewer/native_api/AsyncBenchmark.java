@@ -18,16 +18,19 @@
  * SyncBenchmark client, also found in the reviewer sample directory.
  */
 
-package reviewer;
+package reviewer.native_api;
 
-import org.voltdb.client.*;
-import reviewer.common.BookReviewsGenerator;
-import reviewer.common.Constants;
-import reviewer.common.ReviewerConfig;
+import common.BookReviewsGenerator;
+import common.Constants;
+import common.DBConnection;
+import common.ReviewerConfig;
+import org.voltdb.client.ClientResponse;
+import org.voltdb.client.NullCallback;
+import org.voltdb.client.ProcedureCallback;
+import reviewer.Benchmark;
+import util.StdOut;
 
-import java.util.concurrent.CountDownLatch;
-
-public class AsyncBenchmark extends Benchmark {
+public class AsyncBenchmark extends NativeAPIBenchmark {
 
     /**
      * Constructor for benchmark instance.
@@ -37,14 +40,6 @@ public class AsyncBenchmark extends Benchmark {
      */
     public AsyncBenchmark(ReviewerConfig config) {
         super(config);
-
-        ClientConfig clientConfig = new ClientConfig(config.user, config.password, new StatusListener());
-        clientConfig.setMaxTransactionsPerSecond(config.ratelimit);
-
-        this.client = ClientFactory.createClient(clientConfig);
-
-        periodicStatsContext = client.createStatsContext();
-        fullStatsContext = client.createStatsContext();
     }
 
     /**
@@ -56,12 +51,12 @@ public class AsyncBenchmark extends Benchmark {
         public void clientCallback(ClientResponse response) throws Exception {
             if (response.getStatus() == ClientResponse.SUCCESS) {
                 long resultCode = response.getResults()[0].asScalarLong();
-                if (resultCode == reviewer.procedures.Review.ERR_INVALID_BOOK) {
+                if (resultCode == Constants.ERR_INVALID_BOOK) {
                     badBookReviews.incrementAndGet();
-                } else if (resultCode == reviewer.procedures.Review.ERR_REVIEWER_OVER_REVIEW_LIMIT) {
+                } else if (resultCode == Constants.ERR_REVIEWER_OVER_REVIEW_LIMIT) {
                     badReviewCountReviews.incrementAndGet();
                 } else {
-                    assert (resultCode == reviewer.procedures.Review.REVIEW_SUCCESSFUL);
+                    assert (resultCode == Constants.REVIEW_SUCCESSFUL);
                     acceptedReviews.incrementAndGet();
                 }
             } else {
@@ -77,24 +72,24 @@ public class AsyncBenchmark extends Benchmark {
      * @throws Exception if anything unexpected happens.
      */
     public void runBenchmark() throws Exception {
-        System.out.print(Constants.HORIZONTAL_RULE);
-        System.out.println(" Setup & Initialization");
-        System.out.println(Constants.HORIZONTAL_RULE);
+        StdOut.print(Constants.HORIZONTAL_RULE);
+        StdOut.println(" Setup & Initialization");
+        StdOut.println(Constants.HORIZONTAL_RULE);
 
         // connect to one or more servers, loop until success
-        connect(config.servers);
+        DBConnection.connect(config.servers, client);
 
         // initialize using synchronous call
-        System.out.println("\nPopulating Static Tables\n");
+        StdOut.println("\nPopulating Static Tables\n");
         client.callProcedure("Initialize", config.books, Constants.BOOK_NAMES_CSV);
 
-        System.out.print(Constants.HORIZONTAL_RULE);
-        System.out.println(" Starting Benchmark");
-        System.out.println(Constants.HORIZONTAL_RULE);
+        StdOut.print(Constants.HORIZONTAL_RULE);
+        StdOut.println(" Starting Benchmark");
+        StdOut.println(Constants.HORIZONTAL_RULE);
 
         // Run the benchmark loop for the requested warmup time
         // The throughput may be throttled depending on client configuration
-        System.out.println("Warming up...");
+        StdOut.println("Warming up...");
         final long warmupEndTime = System.currentTimeMillis() + (1000l * config.warmup);
         while (warmupEndTime > System.currentTimeMillis()) {
             // Get the next review
@@ -119,7 +114,7 @@ public class AsyncBenchmark extends Benchmark {
 
         // Run the benchmark loop for the requested duration
         // The throughput may be throttled depending on client configuration
-        System.out.println("\nRunning benchmark...");
+        StdOut.println("\nRunning benchmark...");
         final long benchmarkEndTime = System.currentTimeMillis() + (1000l * config.duration);
         while (benchmarkEndTime > System.currentTimeMillis()) {
             // Get the next review
@@ -149,58 +144,6 @@ public class AsyncBenchmark extends Benchmark {
         client.close();
     }
 
-    /**
-     * Connect to a set of servers in parallel. Each will retry until
-     * connection. This call will block until all have connected.
-     *
-     * @param servers A comma separated list of servers using the hostname:port
-     *                syntax (where :port is optional).
-     * @throws InterruptedException if anything bad happens with the threads.
-     */
-    void connect(String servers) throws InterruptedException {
-        System.out.println("Connecting to VoltDB...");
-
-        String[] serverArray = servers.split(",");
-        final CountDownLatch connections = new CountDownLatch(serverArray.length);
-
-        // use a new thread to connect to each server
-        for (final String server : serverArray) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    connectToOneServerWithRetry(server);
-                    connections.countDown();
-                }
-            }).start();
-        }
-        // block until all have connected
-        connections.await();
-    }
-
-    /**
-     * Connect to a single server with retry. Limited exponential backoff.
-     * No timeout. This will run until the process is killed if it's not
-     * able to connect.
-     *
-     * @param server hostname:port or just hostname (hostname can be ip).
-     */
-    void connectToOneServerWithRetry(String server) {
-        int sleep = 1000;
-        while (true) {
-            try {
-                client.createConnection(server);
-                break;
-            } catch (Exception e) {
-                System.err.printf("Connection failed - retrying in %d second(s).\n", sleep / 1000);
-                try {
-                    Thread.sleep(sleep);
-                } catch (Exception ignored) {
-                }
-                if (sleep < 8000) sleep += sleep;
-            }
-        }
-        System.out.printf("Connected to VoltDB node at: %s.\n", server);
-    }
 
     /**
      * Main routine creates a benchmark instance and kicks off the run method.
@@ -214,7 +157,7 @@ public class AsyncBenchmark extends Benchmark {
         ReviewerConfig config = new ReviewerConfig();
         config.parse(AsyncBenchmark.class.getName(), args);
 
-        AsyncBenchmark benchmark = new AsyncBenchmark(config);
+        Benchmark benchmark = new AsyncBenchmark(config);
         benchmark.runBenchmark();
     }
 }

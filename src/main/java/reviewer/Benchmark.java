@@ -24,11 +24,11 @@
 
 package reviewer;
 
-import org.voltdb.VoltTable;
+import common.BookReviewsGenerator;
+import common.Constants;
+import common.ReviewerConfig;
 import org.voltdb.client.*;
-import reviewer.common.BookReviewsGenerator;
-import reviewer.common.Constants;
-import reviewer.common.ReviewerConfig;
+import util.StdOut;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -40,47 +40,44 @@ import java.util.concurrent.atomic.AtomicLong;
  * Created by sandeep on 7/16/14.
  */
 public abstract class Benchmark {
-
-    // Reference to the database connection we will use
-    protected Client client;
-
     // validated command line configuration
-    protected ReviewerConfig config;
-    protected AtomicLong badBookReviews = new AtomicLong(0);
-    protected AtomicLong badReviewCountReviews = new AtomicLong(0);
+    public ReviewerConfig config;
+    public AtomicLong badBookReviews = new AtomicLong(0);
+    public AtomicLong badReviewCountReviews = new AtomicLong(0);
     // reviewer benchmark state
-    protected AtomicLong acceptedReviews = new AtomicLong(0);
-    protected AtomicLong failedReviews = new AtomicLong(0);
+    public AtomicLong acceptedReviews = new AtomicLong(0);
+    public AtomicLong failedReviews = new AtomicLong(0);
     // Benchmark start time
-    protected long benchmarkStartTS;
+    public long benchmarkStartTS;
     // Timer for periodic stats printing
-    protected Timer timer;
+    public Timer timer;
     // Email generator
-    protected BookReviewsGenerator reviewsGenerator;
+    public BookReviewsGenerator reviewsGenerator;
 
     // Flags to tell the worker threads to stop or go
-    protected AtomicBoolean warmupComplete = new AtomicBoolean(false);
-    protected AtomicBoolean benchmarkComplete = new AtomicBoolean(false);
+    public AtomicBoolean warmupComplete = new AtomicBoolean(false);
+    public AtomicBoolean benchmarkComplete = new AtomicBoolean(false);
 
     // Statistics manager objects from the client
-    protected ClientStatsContext periodicStatsContext;
-    protected ClientStatsContext fullStatsContext;
+    public ClientStatsContext periodicStatsContext;
+    public ClientStatsContext fullStatsContext;
 
     public Benchmark(ReviewerConfig config) {
         this.config = config;
 
         reviewsGenerator = new BookReviewsGenerator(config.books);
 
-        System.out.print(Constants.HORIZONTAL_RULE);
-        System.out.println(" Command Line Configuration");
-        System.out.println(Constants.HORIZONTAL_RULE);
-        System.out.println(config.getConfigDumpString());
+        StdOut.print(Constants.HORIZONTAL_RULE);
+        StdOut.println(" Command Line Configuration");
+        StdOut.println(Constants.HORIZONTAL_RULE);
+        StdOut.println(config.getConfigDumpString());
         if (config.latencyreport) {
-            System.out.println("NOTICE: Option latencyreport is ON for async run, please set a reasonable ratelimit.\n");
+            StdOut.println("NOTICE: Option latencyreport is ON for async run, please set a reasonable ratelimit.\n");
         }
     }
 
     public abstract void runBenchmark() throws Exception;
+
 
     /**
      * Prints the results of the simulation and statistics
@@ -101,61 +98,53 @@ public abstract class Benchmark {
                 " - %,9d Rejected (Invalid Book)\n" +
                 " - %,9d Rejected (Maximum Review Count Reached)\n" +
                 " - %,9d Failed (Transaction Error)\n\n";
-        System.out.printf(display, stats.getInvocationsCompleted(),
+        StdOut.printf(display, stats.getInvocationsCompleted(),
                 acceptedReviews.get(), badBookReviews.get(),
                 badReviewCountReviews.get(), failedReviews.get());
 
         getResults();
 
         // 3. Performance statistics
-        System.out.print(Constants.HORIZONTAL_RULE);
-        System.out.println(" Client Workload Statistics");
-        System.out.println(Constants.HORIZONTAL_RULE);
+        StdOut.print(Constants.HORIZONTAL_RULE);
+        StdOut.println(" Client Workload Statistics");
+        StdOut.println(Constants.HORIZONTAL_RULE);
 
-        System.out.printf("Average throughput:            %,9d txns/sec\n", stats.getTxnThroughput());
+        StdOut.printf("Average throughput:            %,9d txns/sec\n", stats.getTxnThroughput());
         if (this.config.latencyreport) {
-            System.out.printf("Average latency:               %,9.2f ms\n", stats.getAverageLatency());
-            System.out.printf("10th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.1));
-            System.out.printf("25th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.25));
-            System.out.printf("50th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.5));
-            System.out.printf("75th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.75));
-            System.out.printf("90th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.9));
-            System.out.printf("95th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.95));
-            System.out.printf("99th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.99));
-            System.out.printf("99.5th percentile latency:     %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.995));
-            System.out.printf("99.9th percentile latency:     %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.999));
+            StdOut.printf("Average latency:               %,9.2f ms\n", stats.getAverageLatency());
+            StdOut.printf("10th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.1));
+            StdOut.printf("25th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.25));
+            StdOut.printf("50th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.5));
+            StdOut.printf("75th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.75));
+            StdOut.printf("90th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.9));
+            StdOut.printf("95th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.95));
+            StdOut.printf("99th percentile latency:       %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.99));
+            StdOut.printf("99.5th percentile latency:     %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.995));
+            StdOut.printf("99.9th percentile latency:     %,9.2f ms\n", stats.kPercentileLatencyAsDouble(.999));
 
-            System.out.print("\n" + Constants.HORIZONTAL_RULE);
-            System.out.println(" System Server Statistics");
-            System.out.println(Constants.HORIZONTAL_RULE);
-            System.out.printf("Reported Internal Avg Latency: %,9.2f ms\n", stats.getAverageInternalLatency());
+            StdOut.print("\n" + Constants.HORIZONTAL_RULE);
+            StdOut.println(" System Server Statistics");
+            StdOut.println(Constants.HORIZONTAL_RULE);
+            StdOut.printf("Reported Internal Avg Latency: %,9.2f ms\n", stats.getAverageInternalLatency());
 
-            System.out.print("\n" + Constants.HORIZONTAL_RULE);
-            System.out.println(" Latency Histogram");
-            System.out.println(Constants.HORIZONTAL_RULE);
-            System.out.println(stats.latencyHistoReport());
+            StdOut.print("\n" + Constants.HORIZONTAL_RULE);
+            StdOut.println(" Latency Histogram");
+            StdOut.println(Constants.HORIZONTAL_RULE);
+            StdOut.println(stats.latencyHistoReport());
         }
-        // 4. Write stats to file if requested
-        if (!"".equals(config.statsfile.trim())) client.writeSummaryCSV(stats, config.statsfile);
+
+        getSummaryCSV();
     }
 
-    public void getResults() throws IOException, ProcCallException {
-        // 2. results
-        VoltTable result = client.callProcedure("Results").getResults()[0];
+    protected abstract void getSummaryCSV() throws IOException;
 
-        System.out.println("Book Name\t\tReviews Received");
-        while (result.advanceRow()) {
-            System.out.printf("%s\t\t%,14d\n", result.getString(0), result.getLong(2));
-        }
-        System.out.printf("\nThe Winner is: %s\n\n", result.fetchRow(0).getString(0));
-    }
-
+    public abstract void getResults() throws IOException, ProcCallException;
 
     /**
      * Provides a callback to be notified on node failure. This example only
      * logs the event.
      */
-    class StatusListener extends ClientStatusListenerExt {
+    public class StatusListener extends ClientStatusListenerExt {
         @Override
         public void connectionLost(String hostname, int port,
                                    int connectionsLeft, DisconnectCause cause) {
@@ -192,14 +181,14 @@ public abstract class Benchmark {
         ClientStats stats = periodicStatsContext.fetchAndResetBaseline().getStats();
         long time = Math.round((stats.getEndTimestamp() - benchmarkStartTS) / 1000.0);
 
-        System.out.printf("%02d:%02d:%02d ", time / 3600, (time / 60) % 60, time % 60);
-        System.out.printf("Throughput %d/s, ", stats.getTxnThroughput());
-        System.out.printf("Aborts/Failures %d/%d",
+        StdOut.printf("%02d:%02d:%02d ", time / 3600, (time / 60) % 60, time % 60);
+        StdOut.printf("Throughput %d/s, ", stats.getTxnThroughput());
+        StdOut.printf("Aborts/Failures %d/%d",
                 stats.getInvocationAborts(), stats.getInvocationErrors());
         if (this.config.latencyreport) {
-            System.out.printf(", Avg/95%% Latency %.2f/%.2fms", stats.getAverageLatency(),
+            StdOut.printf(", Avg/95%% Latency %.2f/%.2fms", stats.getAverageLatency(),
                     stats.kPercentileLatencyAsDouble(0.95));
         }
-        System.out.printf("\n");
+        StdOut.printf("\n");
     }
 }

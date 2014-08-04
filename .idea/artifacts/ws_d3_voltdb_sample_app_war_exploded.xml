@@ -1,0 +1,17 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="ws-d3-voltdb-sample-app:war exploded">
+    <output-path>$PROJECT_DIR$/target/ws-d3-voltdb-1.0-SNAPSHOT</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="ws-d3-voltdb-sample-app/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="ws-d3-voltdb-sample-app" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: org.voltdb:voltdb-client:4.4" />
+          <element id="library" level="project" name="Maven: org.voltdb:voltdb:4.4" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
