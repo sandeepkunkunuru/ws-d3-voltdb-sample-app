@@ -24,7 +24,7 @@
 
 package services;
 
-import models.ReviewStats;
+import models.Stats;
 
 import javax.json.Json;
 import javax.websocket.OnMessage;
@@ -41,8 +41,8 @@ public class Reviewing {
     private static final HashMap<String, Json> book_prefs = new HashMap<>(); //proxy for voltdb
 
     static{
-        ReviewStats pre1 = new ReviewStats();
-        ReviewStats pre2 = new ReviewStats();
+        Stats pre1 = new Stats();
+        Stats pre2 = new Stats();
 
         //book_prefs.put("book1", Json.)
     }
@@ -53,7 +53,7 @@ public class Reviewing {
 	}
 
 	@OnMessage
-	public void onMessage(final Session session, final ReviewStats preferences) {
+	public void onMessage(final Session session, final Stats preferences) {
 		String book = (String) session.getUserProperties().get("book");
 
 /*		try {

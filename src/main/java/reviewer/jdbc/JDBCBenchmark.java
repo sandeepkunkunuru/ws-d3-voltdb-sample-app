@@ -98,12 +98,12 @@ public class JDBCBenchmark extends Benchmark {
                     try {
                         long resultCode = reviewCS.executeUpdate();
 
-                        reviewStats.updateResults(resultCode);
+                        stats.updateResults(resultCode);
                     } catch (Exception x) {
-                        reviewStats.incrementFailedReviews();
+                        stats.incrementFailedReviews();
                     }
                 } catch (Exception e) {
-                    reviewStats.incrementFailedReviews();
+                    stats.incrementFailedReviews();
                 }
             }
 
@@ -157,7 +157,7 @@ public class JDBCBenchmark extends Benchmark {
         periodicStatsContext.fetchAndResetBaseline();
 
         // print periodic statistics to the console
-        reviewStats.setBenchmarkStartTS(System.currentTimeMillis());
+        stats.setStartTS(System.currentTimeMillis());
         schedulePeriodicStats();
 
         // Run the benchmark loop for the requested warmup time

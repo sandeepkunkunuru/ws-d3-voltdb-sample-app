@@ -26,7 +26,7 @@ package reviewer;
 
 import common.BookReviewsGenerator;
 import common.Constants;
-import models.ReviewStats;
+import models.Stats;
 import common.ReviewerConfig;
 import org.voltdb.client.ClientStats;
 import org.voltdb.client.ClientStatsContext;
@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by sandeep on 7/16/14.
  */
 public abstract class Benchmark {
-    public final ReviewStats reviewStats;
+    public final Stats stats;
     // validated command line configuration
     public ReviewerConfig config;
 
@@ -61,7 +61,7 @@ public abstract class Benchmark {
     public ClientStatsContext fullStatsContext;
 
     public Benchmark(ReviewerConfig config) {
-        this.reviewStats = new ReviewStats();
+        this.stats = new Stats();
         this.config = config;
 
         reviewsGenerator = new BookReviewsGenerator(config.books);
@@ -86,7 +86,7 @@ public abstract class Benchmark {
     public synchronized void printResults() throws Exception {
         ClientStats stats = fullStatsContext.fetch().getStats();
 
-        reviewStats.printResults(stats.getInvocationsCompleted());
+        this.stats.printResults(stats.getInvocationsCompleted());
 
         getWinner();
 
@@ -161,17 +161,14 @@ public abstract class Benchmark {
      */
     public synchronized void printStatistics() {
         ClientStats stats = periodicStatsContext.fetchAndResetBaseline().getStats();
-        long time = reviewStats.getTime(stats.getEndTimestamp());
 
-        StdOut.printf("%02d:%02d:%02d ", time / 3600, (time / 60) % 60, time % 60);
-        StdOut.printf("Throughput %d/s, ", stats.getTxnThroughput());
-        StdOut.printf("Aborts/Failures %d/%d",
-                stats.getInvocationAborts(), stats.getInvocationErrors());
-        if (this.config.latencyreport) {
-            StdOut.printf(", Avg/95%% Latency %.2f/%.2fms", stats.getAverageLatency(),
-                    stats.kPercentileLatencyAsDouble(0.95));
-        }
-        StdOut.printf("\n");
+        this.stats.setLatencyReport(config.latencyreport).setEndTS(stats.getEndTimestamp());
+        this.stats.setThroughput(stats.getTxnThroughput()).setAborts(stats.getInvocationAborts());
+        this.stats.setErrors(stats.getInvocationErrors());
+        this.stats.setLatency(stats.getAverageLatency());
+        this.stats.setLatency_95(stats.kPercentileLatencyAsDouble(0.95));
+
+        this.stats.printStatistics();
     }
 
     protected abstract void getSummaryCSV() throws IOException;

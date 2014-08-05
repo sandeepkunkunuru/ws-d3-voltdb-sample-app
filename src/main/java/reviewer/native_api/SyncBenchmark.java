@@ -58,9 +58,9 @@ public class SyncBenchmark extends NativeAPIBenchmark {
                             config.maxreviews);
 
                     long resultCode = response.getResults()[0].asScalarLong();
-                    reviewStats.updateResults(resultCode);
+                    stats.updateResults(resultCode);
                 } catch (Exception e) {
-                    reviewStats.incrementFailedReviews();
+                    stats.incrementFailedReviews();
                 }
             }
         }
@@ -107,7 +107,7 @@ public class SyncBenchmark extends NativeAPIBenchmark {
         periodicStatsContext.fetchAndResetBaseline();
 
         // print periodic statistics to the console
-        reviewStats.setBenchmarkStartTS(System.currentTimeMillis());
+        stats.setStartTS(System.currentTimeMillis());
         schedulePeriodicStats();
 
         // Run the benchmark loop for the requested warmup time

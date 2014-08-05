@@ -24,7 +24,7 @@
 
 package services;
 
-import models.ReviewStats;
+import models.Stats;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -34,30 +34,30 @@ import java.io.StringReader;
 /**
  * Created by sandeep on 8/4/14.
  */
-public class ReviewStatsCodec implements Encoder.Text<ReviewStats>, Decoder.Text<ReviewStats> {
+public class ReviewStatsCodec implements Encoder.Text<Stats>, Decoder.Text<Stats> {
     @Override
-    public String encode(final ReviewStats reviewStats) throws EncodeException {
+    public String encode(final Stats stats) throws EncodeException {
         return Json.createObjectBuilder()
-                .add("benchmarkStartTS", reviewStats.getBenchmarkStartTS())
-                .add("acceptedReviews", reviewStats.getAcceptedReviews())
-                .add("badBookReviews", reviewStats.getBadBookReviews())
-                .add("badReviewCountReviews", reviewStats.getBadReviewCountReviews())
-                .add("failedReviews", reviewStats.getFailedReviews())
+                .add("benchmarkStartTS", stats.getStartTS())
+                .add("acceptedReviews", stats.getAccepted())
+                .add("badBookReviews", stats.getInvalidEntity())
+                .add("badReviewCountReviews", stats.getInvalid())
+                .add("failedReviews", stats.getFailed())
                 .toString();
     }
 
     @Override
-    public ReviewStats decode(final String textMessage) throws DecodeException {
-        ReviewStats reviewStats = new ReviewStats();
+    public Stats decode(final String textMessage) throws DecodeException {
+        Stats stats = new Stats();
         JsonObject obj = Json.createReader(new StringReader(textMessage)).readObject();
 
-        reviewStats.setBenchmarkStartTS(Long.parseLong(obj.getString("benchmarkStartTS")));
-        reviewStats.setAcceptedReviews(Long.parseLong(obj.getString("acceptedReviews")));
-        reviewStats.setBadBookReviews(Long.parseLong(obj.getString("badBookReviews")));
-        reviewStats.setBadReviewCountReviews(Long.parseLong(obj.getString("badReviewCountReviews")));
-        reviewStats.setFailedReviews(Long.parseLong(obj.getString("failedReviews")));
+        stats.setStartTS(Long.parseLong(obj.getString("benchmarkStartTS")));
+        stats.setAccepted(Long.parseLong(obj.getString("acceptedReviews")));
+        stats.setInvalidEntity(Long.parseLong(obj.getString("badBookReviews")));
+        stats.setInvalid(Long.parseLong(obj.getString("badReviewCountReviews")));
+        stats.setFailed(Long.parseLong(obj.getString("failedReviews")));
 
-        return reviewStats;
+        return stats;
     }
 
     @Override
