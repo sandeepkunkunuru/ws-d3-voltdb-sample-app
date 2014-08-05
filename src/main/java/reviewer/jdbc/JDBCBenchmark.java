@@ -50,7 +50,7 @@ public class JDBCBenchmark extends Benchmark {
      */
     void connect(String servers) throws InterruptedException,
             ClassNotFoundException, SQLException {
-        connection = DBConnection.getJDBCConnection(config.servers);
+        connection = DBConnection.getJDBCConnection(servers);
 
         periodicStatsContext = ((IVoltDBConnection) connection).createStatsContext();
         fullStatsContext = ((IVoltDBConnection) connection).createStatsContext();
@@ -98,19 +98,12 @@ public class JDBCBenchmark extends Benchmark {
                     try {
                         long resultCode = reviewCS.executeUpdate();
 
-                        if (resultCode == Constants.ERR_INVALID_BOOK) {
-                            badBookReviews.incrementAndGet();
-                        } else if (resultCode == Constants.ERR_REVIEWER_OVER_REVIEW_LIMIT) {
-                            badReviewCountReviews.incrementAndGet();
-                        } else {
-                            assert (resultCode == Constants.REVIEW_SUCCESSFUL);
-                            acceptedReviews.incrementAndGet();
-                        }
+                        reviewStats.updateResults(resultCode);
                     } catch (Exception x) {
-                        failedReviews.incrementAndGet();
+                        reviewStats.incrementFailedReviews();
                     }
                 } catch (Exception e) {
-                    failedReviews.incrementAndGet();
+                    reviewStats.incrementFailedReviews();
                 }
             }
 
@@ -164,7 +157,7 @@ public class JDBCBenchmark extends Benchmark {
         periodicStatsContext.fetchAndResetBaseline();
 
         // print periodic statistics to the console
-        benchmarkStartTS = System.currentTimeMillis();
+        reviewStats.setBenchmarkStartTS(System.currentTimeMillis());
         schedulePeriodicStats();
 
         // Run the benchmark loop for the requested warmup time
@@ -199,7 +192,7 @@ public class JDBCBenchmark extends Benchmark {
             ((IVoltDBConnection)connection).writeSummaryCSV(fullStatsContext.fetch().getStats(), config.statsfile);
     }
 
-    public void getResults() throws IOException, ProcCallException {
+    public void getWinner() throws IOException, ProcCallException {
         try {
             final PreparedStatement reviewCS = connection
                     .prepareCall("{call Results()}");
@@ -212,12 +205,11 @@ public class JDBCBenchmark extends Benchmark {
                     StdOut.printf("%s\t\t%,14d\n", result.getString(0), result.getLong(2));
                 }
                 StdOut.printf("\nThe Winner is: %s\n\n", result.getString(0));
-                acceptedReviews.incrementAndGet();
             } catch (Exception x) {
-                badReviewCountReviews.incrementAndGet();
+                x.printStackTrace();
             }
         } catch (Exception e) {
-            failedReviews.incrementAndGet();
+            e.printStackTrace();
         }
     }
 

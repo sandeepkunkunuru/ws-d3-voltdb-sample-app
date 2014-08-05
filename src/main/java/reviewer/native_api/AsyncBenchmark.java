@@ -51,16 +51,9 @@ public class AsyncBenchmark extends NativeAPIBenchmark {
         public void clientCallback(ClientResponse response) throws Exception {
             if (response.getStatus() == ClientResponse.SUCCESS) {
                 long resultCode = response.getResults()[0].asScalarLong();
-                if (resultCode == Constants.ERR_INVALID_BOOK) {
-                    badBookReviews.incrementAndGet();
-                } else if (resultCode == Constants.ERR_REVIEWER_OVER_REVIEW_LIMIT) {
-                    badReviewCountReviews.incrementAndGet();
-                } else {
-                    assert (resultCode == Constants.REVIEW_SUCCESSFUL);
-                    acceptedReviews.incrementAndGet();
-                }
+                reviewStats.updateResults(resultCode);
             } else {
-                failedReviews.incrementAndGet();
+                reviewStats.incrementFailedReviews();
             }
         }
     }
@@ -108,7 +101,7 @@ public class AsyncBenchmark extends NativeAPIBenchmark {
         periodicStatsContext.fetchAndResetBaseline();
 
         // print periodic statistics to the console
-        benchmarkStartTS = System.currentTimeMillis();
+        reviewStats.setBenchmarkStartTS(System.currentTimeMillis());
         schedulePeriodicStats();
 
 

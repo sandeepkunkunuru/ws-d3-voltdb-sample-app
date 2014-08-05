@@ -52,6 +52,7 @@ function srccompile() {
     javac -target 1.7 -source 1.7 -classpath $APPCLASSPATH -d obj \
         src/main/java/util/*.java \
         src/main/java/common/*.java \
+        src/main/java/models/*.java \
         src/main/java/reviewer/procedures/*.java \
         src/main/java/reviewer/native_api/*.java \
         src/main/java/reviewer/jdbc/*.java \

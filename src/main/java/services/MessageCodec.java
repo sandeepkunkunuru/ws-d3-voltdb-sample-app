@@ -24,17 +24,18 @@
 
 package services;
 
+import models.Message;
+
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.*;
 import java.io.StringReader;
 import java.util.Date;
 
-public class Message implements Encoder.Text<Message>, Decoder.Text<Message>{
-	private String message;
-	private String sender;
-	private Date received;
-
+/**
+ * Created by sandeep on 8/4/14.
+ */
+public class MessageCodec implements Encoder.Text<Message>, Decoder.Text<Message> {
     @Override
     public void init(final EndpointConfig config) {
     }
@@ -42,36 +43,6 @@ public class Message implements Encoder.Text<Message>, Decoder.Text<Message>{
     @Override
     public void destroy() {
     }
-
-	public final String getMessage() {
-		return message;
-	}
-
-	public final void setMessage(final String message) {
-		this.message = message;
-	}
-
-	public final String getSender() {
-		return sender;
-	}
-
-	public final void setSender(final String sender) {
-		this.sender = sender;
-	}
-
-	public final Date getReceived() {
-		return received;
-	}
-
-	public final void setReceived(final Date received) {
-		this.received = received;
-	}
-
-	@Override
-	public String toString() {
-		return "ChatMessage [message=" + message + ", sender=" + sender
-				+ ", received=" + received + "]";
-	}
 
     @Override
     public String encode(final Message chatMessage) throws EncodeException {
@@ -97,4 +68,5 @@ public class Message implements Encoder.Text<Message>, Decoder.Text<Message>{
     public boolean willDecode(final String s) {
         return true;
     }
+
 }

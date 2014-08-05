@@ -58,16 +58,9 @@ public class SyncBenchmark extends NativeAPIBenchmark {
                             config.maxreviews);
 
                     long resultCode = response.getResults()[0].asScalarLong();
-                    if (resultCode == Constants.ERR_INVALID_BOOK) {
-                        badBookReviews.incrementAndGet();
-                    } else if (resultCode == Constants.ERR_REVIEWER_OVER_REVIEW_LIMIT) {
-                        badReviewCountReviews.incrementAndGet();
-                    } else {
-                        assert (resultCode == Constants.REVIEW_SUCCESSFUL);
-                        acceptedReviews.incrementAndGet();
-                    }
+                    reviewStats.updateResults(resultCode);
                 } catch (Exception e) {
-                    failedReviews.incrementAndGet();
+                    reviewStats.incrementFailedReviews();
                 }
             }
         }
@@ -114,7 +107,7 @@ public class SyncBenchmark extends NativeAPIBenchmark {
         periodicStatsContext.fetchAndResetBaseline();
 
         // print periodic statistics to the console
-        benchmarkStartTS = System.currentTimeMillis();
+        reviewStats.setBenchmarkStartTS(System.currentTimeMillis());
         schedulePeriodicStats();
 
         // Run the benchmark loop for the requested warmup time

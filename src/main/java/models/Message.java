@@ -22,36 +22,43 @@
  * THE SOFTWARE.
  */
 
-package services;
+package models;
 
-import javax.websocket.*;
+import java.util.Date;
 
-/**
- * Created by sandeep on 7/29/14.
- */
-public class Review implements Encoder.Text<Review>, Decoder.Text<Review> {
-    @Override
-    public Review decode(String s) throws DecodeException {
-        return null;
-    }
+public class Message{
+	private String message;
+	private String sender;
+	private Date received;
 
-    @Override
-    public boolean willDecode(String s) {
-        return false;
-    }
+	public final String getMessage() {
+		return message;
+	}
 
-    @Override
-    public void init(EndpointConfig endpointConfig) {
+	public final void setMessage(final String message) {
+		this.message = message;
+	}
 
-    }
+	public final String getSender() {
+		return sender;
+	}
 
-    @Override
-    public void destroy() {
+	public final void setSender(final String sender) {
+		this.sender = sender;
+	}
 
-    }
+	public final Date getReceived() {
+		return received;
+	}
 
-    @Override
-    public String encode(Review preferences) throws EncodeException {
-        return null;
-    }
+	public final void setReceived(final Date received) {
+		this.received = received;
+	}
+
+	@Override
+	public String toString() {
+		return "ChatMessage [message=" + message + ", sender=" + sender
+				+ ", received=" + received + "]";
+	}
+
 }

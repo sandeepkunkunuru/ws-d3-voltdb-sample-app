@@ -26,29 +26,27 @@ package reviewer;
 
 import common.BookReviewsGenerator;
 import common.Constants;
+import models.ReviewStats;
 import common.ReviewerConfig;
-import org.voltdb.client.*;
+import org.voltdb.client.ClientStats;
+import org.voltdb.client.ClientStatsContext;
+import org.voltdb.client.ClientStatusListenerExt;
+import org.voltdb.client.ProcCallException;
 import util.StdOut;
 
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by sandeep on 7/16/14.
  */
 public abstract class Benchmark {
+    public final ReviewStats reviewStats;
     // validated command line configuration
     public ReviewerConfig config;
-    public AtomicLong badBookReviews = new AtomicLong(0);
-    public AtomicLong badReviewCountReviews = new AtomicLong(0);
-    // reviewer benchmark state
-    public AtomicLong acceptedReviews = new AtomicLong(0);
-    public AtomicLong failedReviews = new AtomicLong(0);
-    // Benchmark start time
-    public long benchmarkStartTS;
+
     // Timer for periodic stats printing
     public Timer timer;
     // Email generator
@@ -63,6 +61,7 @@ public abstract class Benchmark {
     public ClientStatsContext fullStatsContext;
 
     public Benchmark(ReviewerConfig config) {
+        this.reviewStats = new ReviewStats();
         this.config = config;
 
         reviewsGenerator = new BookReviewsGenerator(config.books);
@@ -78,7 +77,6 @@ public abstract class Benchmark {
 
     public abstract void runBenchmark() throws Exception;
 
-
     /**
      * Prints the results of the simulation and statistics
      * about performance.
@@ -88,21 +86,9 @@ public abstract class Benchmark {
     public synchronized void printResults() throws Exception {
         ClientStats stats = fullStatsContext.fetch().getStats();
 
-        // 1. results and performance statistics
-        String display = "\n" +
-                Constants.HORIZONTAL_RULE +
-                " Results\n" +
-                Constants.HORIZONTAL_RULE +
-                "\nA total of %d reviews were received...\n" +
-                " - %,9d Accepted\n" +
-                " - %,9d Rejected (Invalid Book)\n" +
-                " - %,9d Rejected (Maximum Review Count Reached)\n" +
-                " - %,9d Failed (Transaction Error)\n\n";
-        StdOut.printf(display, stats.getInvocationsCompleted(),
-                acceptedReviews.get(), badBookReviews.get(),
-                badReviewCountReviews.get(), failedReviews.get());
+        reviewStats.printResults(stats.getInvocationsCompleted());
 
-        getResults();
+        getWinner();
 
         // 3. Performance statistics
         StdOut.print(Constants.HORIZONTAL_RULE);
@@ -135,10 +121,6 @@ public abstract class Benchmark {
 
         getSummaryCSV();
     }
-
-    protected abstract void getSummaryCSV() throws IOException;
-
-    public abstract void getResults() throws IOException, ProcCallException;
 
     /**
      * Provides a callback to be notified on node failure. This example only
@@ -179,7 +161,7 @@ public abstract class Benchmark {
      */
     public synchronized void printStatistics() {
         ClientStats stats = periodicStatsContext.fetchAndResetBaseline().getStats();
-        long time = Math.round((stats.getEndTimestamp() - benchmarkStartTS) / 1000.0);
+        long time = reviewStats.getTime(stats.getEndTimestamp());
 
         StdOut.printf("%02d:%02d:%02d ", time / 3600, (time / 60) % 60, time % 60);
         StdOut.printf("Throughput %d/s, ", stats.getTxnThroughput());
@@ -191,4 +173,8 @@ public abstract class Benchmark {
         }
         StdOut.printf("\n");
     }
+
+    protected abstract void getSummaryCSV() throws IOException;
+
+    public abstract void getWinner() throws IOException, ProcCallException;
 }

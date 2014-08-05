@@ -104,7 +104,7 @@ public class SimpleBenchmark extends Benchmark {
     }
 
     @Override
-    public void getResults() throws IOException, ProcCallException {
+    public void getWinner() throws IOException, ProcCallException {
 
     }
 }

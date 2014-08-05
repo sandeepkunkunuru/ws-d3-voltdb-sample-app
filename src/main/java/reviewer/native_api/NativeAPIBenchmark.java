@@ -55,7 +55,7 @@ public abstract class NativeAPIBenchmark extends Benchmark {
     }
 
 
-    public void getResults() throws IOException, ProcCallException {
+    public void getWinner() throws IOException, ProcCallException {
         // 2. results
         VoltTable result = client.callProcedure("Results").getResults()[0];
 

@@ -24,6 +24,8 @@
 
 package services;
 
+import models.Message;
+
 import javax.websocket.EncodeException;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
@@ -34,7 +36,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@ServerEndpoint(value = "/messaging/{topic}", encoders = Message.class, decoders = Message.class)
+@ServerEndpoint(value = "/messaging/{topic}", encoders = MessageCodec.class, decoders = MessageCodec.class)
 public class Messaging {
 	private final Logger log = Logger.getLogger(getClass().getName());
 

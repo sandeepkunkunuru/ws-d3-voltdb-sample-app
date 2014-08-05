@@ -71,3 +71,122 @@
 [  20626]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'webrat.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
 [  20626]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'websocket.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
 [  20626]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'xpath.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488260]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'actionpack.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488260]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'activemodel.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488260]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'activerecord.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488260]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'activesupport.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488260]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'arel.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488260]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'authlogic.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488261]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'builder.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488261]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'bundler.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488261]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'capistrano.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488261]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'capybara.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488261]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'carrierwave.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488261]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'chef.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488261]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'childprocess.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488261]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'cucumber-rails.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488262]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'cucumber.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488262]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'diff-lcs.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488262]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'erubis.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488262]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'errno.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488262]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'eventmachine.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488262]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'factory_girl.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488262]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'ffi.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488263]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'gherkin.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488263]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'haml.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488263]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'hashie.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488263]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'highline.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488263]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'hike.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488263]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'hpricot.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488263]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'i18n.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488263]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'ipaddress.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488264]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'journey.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488264]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'json.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488264]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'mail.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488264]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'metaclass.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488264]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'mime-types.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488264]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'mixlib-authentication.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488264]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'mixlib-shellout.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488264]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'mocha.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488265]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'multi_json.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488265]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'mustache.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488265]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'net-sftp.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488265]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'net-ssh.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488265]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'nokogiri.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488265]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'ohai.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488265]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'omniauth.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488265]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'polyglot.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488266]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'rack-cache.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488266]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'rack-ssl.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488266]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'rack.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488266]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'railties.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488266]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'rake.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488266]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'rdoc.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488266]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'RedCloth.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488266]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'redis.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488267]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'resque.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488267]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'rspec-core.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488267]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'rspec-expectations.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488267]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'rspec-mocks.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488267]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'rspec-rails.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488267]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'ruby.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488267]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'rubyzip.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488268]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'selenium-webdriver.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488268]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'shoulda-context.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488268]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'shoulda-matchers.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488268]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'sinatra.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488268]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'spork.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488268]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'sprockets.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488268]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'systemu.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488268]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'tilt.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488269]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'treetop.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488269]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'webrat.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488269]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'websocket.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+[1488269]   WARN - ellchecker.SpellCheckerManager - Couldn't load dictionary 'xpath.dic' with loader 'class org.jetbrains.plugins.ruby.spellchecker.dictionary.RubyBundledDictionaryProvider' 
+java.net.SocketException: Connection timed out
+	at java.net.SocketInputStream.socketRead0(Native Method)
+	at java.net.SocketInputStream.read(SocketInputStream.java:152)
+	at java.net.SocketInputStream.read(SocketInputStream.java:122)
+	at sun.security.ssl.InputRecord.readFully(InputRecord.java:442)
+	at sun.security.ssl.InputRecord.read(InputRecord.java:480)
+	at sun.security.ssl.SSLSocketImpl.readRecord(SSLSocketImpl.java:927)
+	at sun.security.ssl.SSLSocketImpl.readDataRecord(SSLSocketImpl.java:884)
+	at sun.security.ssl.AppInputStream.read(AppInputStream.java:102)
+	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:283)
+	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:325)
+	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:177)
+	at java.io.InputStreamReader.read(InputStreamReader.java:184)
+	at java.io.BufferedReader.fill(BufferedReader.java:154)
+	at java.io.BufferedReader.read1(BufferedReader.java:205)
+	at java.io.BufferedReader.read(BufferedReader.java:279)
+	at org.xmlpull.mxp1.MXParser.fillBuf(MXParser.java:2972)
+	at org.xmlpull.mxp1.MXParser.more(MXParser.java:3026)
+	at org.xmlpull.mxp1.MXParser.nextImpl(MXParser.java:1144)
+	at org.xmlpull.mxp1.MXParser.next(MXParser.java:1093)
+	at org.jivesoftware.smack.PacketReader.parsePackets(PacketReader.java:363)
+	at org.jivesoftware.smack.PacketReader.access$000(PacketReader.java:45)
+	at org.jivesoftware.smack.PacketReader$1.run(PacketReader.java:67)
+java.net.SocketException: Connection timed out
+	at java.net.SocketInputStream.socketRead0(Native Method)
+	at java.net.SocketInputStream.read(SocketInputStream.java:152)
+	at java.net.SocketInputStream.read(SocketInputStream.java:122)
+	at sun.security.ssl.InputRecord.readFully(InputRecord.java:442)
+	at sun.security.ssl.InputRecord.read(InputRecord.java:480)
+	at sun.security.ssl.SSLSocketImpl.readRecord(SSLSocketImpl.java:927)
+	at sun.security.ssl.SSLSocketImpl.readDataRecord(SSLSocketImpl.java:884)
+	at sun.security.ssl.AppInputStream.read(AppInputStream.java:102)
+	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:283)
+	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:325)
+	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:177)
+	at java.io.InputStreamReader.read(InputStreamReader.java:184)
+	at java.io.BufferedReader.fill(BufferedReader.java:154)
+	at java.io.BufferedReader.read1(BufferedReader.java:205)
+	at java.io.BufferedReader.read(BufferedReader.java:279)
+	at org.xmlpull.mxp1.MXParser.fillBuf(MXParser.java:2972)
+	at org.xmlpull.mxp1.MXParser.more(MXParser.java:3026)
+	at org.xmlpull.mxp1.MXParser.nextImpl(MXParser.java:1144)
+	at org.xmlpull.mxp1.MXParser.next(MXParser.java:1093)
+	at org.jivesoftware.smack.PacketReader.parsePackets(PacketReader.java:363)
+	at org.jivesoftware.smack.PacketReader.access$000(PacketReader.java:45)
+	at org.jivesoftware.smack.PacketReader$1.run(PacketReader.java:67)
+[13387493]   WARN - api.vfs.impl.local.FileWatcher - Watcher terminated with exit code 0 

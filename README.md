@@ -3,7 +3,10 @@ Book Reviews
 
 Description
 -----------
-This application has 2 tables : books and reviews  and 4 procedures : Initialize, Review, Results and ReviewsForBook.
+This application has 
+
+- 2 tables : books and reviews  and 
+- 4 procedures : Initialize, Review, Results and ReviewsForBook.
 
 ### Tables
 
@@ -17,7 +20,7 @@ books given by reviewers identified by unique email ids.
     - If the review is for a valid book.
     - If the reviewer has reviewed more books than permissible.
 - Results - Selects the top book based on number of reviews
-- ReviewsForBooks - Gives the count of reviews for a given book.
+- ReviewsForBook - Gives the count of reviews for a given book. Implemented using an inline query
 
 Reference projects
 -------------------

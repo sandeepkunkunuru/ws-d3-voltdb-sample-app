@@ -24,6 +24,8 @@
 
 package services;
 
+import models.ReviewStats;
+
 import javax.json.Json;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
@@ -33,14 +35,14 @@ import javax.websocket.server.ServerEndpoint;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-@ServerEndpoint(value = "/review/{book}", encoders = Review.class, decoders = Review.class)
+@ServerEndpoint(value = "/review/{book}", encoders = ReviewStatsCodec.class, decoders = ReviewStatsCodec.class)
 public class Reviewing {
 	private final Logger log = Logger.getLogger(getClass().getName());
     private static final HashMap<String, Json> book_prefs = new HashMap<>(); //proxy for voltdb
 
     static{
-        Review pre1 = new Review();
-        Review pre2 = new Review();
+        ReviewStats pre1 = new ReviewStats();
+        ReviewStats pre2 = new ReviewStats();
 
         //book_prefs.put("book1", Json.)
     }
@@ -51,7 +53,7 @@ public class Reviewing {
 	}
 
 	@OnMessage
-	public void onMessage(final Session session, final Review preferences) {
+	public void onMessage(final Session session, final ReviewStats preferences) {
 		String book = (String) session.getUserProperties().get("book");
 
 /*		try {
