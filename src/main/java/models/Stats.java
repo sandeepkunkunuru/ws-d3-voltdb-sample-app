@@ -66,7 +66,7 @@ public class Stats {
     }
 
     public void printStatistics() {
-        long time = Math.round((endTS - startTS) / 1000.0);
+        long time = getTime();
 
         StdOut.printf("%02d:%02d:%02d ", time / 3600, (time / 60) % 60, time % 60);
         StdOut.printf("Throughput %d/s, ", throughput);
@@ -99,12 +99,19 @@ public class Stats {
 
     @Override
     public String toString() {
-        return "Results [benchmark start time=" + startTS
-                + ", accepted reviews=" + accepted
-                + ", bad book reviews=" + invalidEntity
-                + ", accepted reviews=" + accepted
-                + ", bad review count reviews=" + invalid
-                + ", failed reviews=" + failed + "]";
+        return new StringBuilder("Results [")
+                .append("benchmark start time=").append(startTS).append(", current time=").append(getTime())
+                .append(", throughput=").append(throughput).append(", aborts=").append(aborts)
+                .append(", errors=").append(errors).append(", avg latency=").append(latency)
+                .append(", latency =").append(latency_95).append(", accepted reviews=").append(accepted)
+                .append(", bad book reviews=").append(invalidEntity).append(", invocations=").append(invocations)
+                .append(", bad review count reviews=").append(invalid).append(", failed reviews=").append(failed)
+                .append("]").toString();
+    }
+
+    public long getTime() {
+        return endTS == 0 ? Math.round((System.currentTimeMillis() - startTS) / 1000.0) :
+                Math.round((endTS - startTS) / 1000.0);
     }
 
     public long getThroughput() {
@@ -204,5 +211,13 @@ public class Stats {
 
     public long getStartTS() {
         return startTS;
+    }
+
+    public long getInvocations() {
+        return invocations.get();
+    }
+
+    public void setInvocations(long invocations) {
+        this.invocations = new AtomicLong(invocations);
     }
 }

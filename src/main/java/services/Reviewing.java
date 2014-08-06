@@ -26,41 +26,35 @@ package services;
 
 import models.Stats;
 
-import javax.json.Json;
+import javax.websocket.EncodeException;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import java.util.HashMap;
+import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@ServerEndpoint(value = "/review/{book}", encoders = ReviewStatsCodec.class, decoders = ReviewStatsCodec.class)
+@ServerEndpoint(value = "/review/{dummy}", encoders = ReviewStatsCodec.class, decoders = ReviewStatsCodec.class)
 public class Reviewing {
 	private final Logger log = Logger.getLogger(getClass().getName());
-    private static final HashMap<String, Json> book_prefs = new HashMap<>(); //proxy for voltdb
 
-    static{
-        Stats pre1 = new Stats();
-        Stats pre2 = new Stats();
-
-        //book_prefs.put("book1", Json.)
-    }
 	@OnOpen
-	public void open(final Session session, @PathParam("book") final String book) {
-		log.info("session openend and bound to book: " + book);
-		session.getUserProperties().put("book", book);
+	public void open(final Session session, @PathParam("topic") final String dummy) {
+		log.info("session openend ");
 	}
 
 	@OnMessage
-	public void onMessage(final Session session, final Stats preferences) {
-		String book = (String) session.getUserProperties().get("book");
-
-/*		try {
-
-
-		} catch (IOException | EncodeException e) {
-			log.log(Level.WARNING, "onMessage failed", e);
-		}*/
+	public void onMessage(final Session session, final Stats stats) {
+        try {
+            for (Session s : session.getOpenSessions()) {
+                if (s.isOpen()) {
+                    s.getBasicRemote().sendObject(stats);
+                }
+            }
+        } catch (IOException | EncodeException e) {
+            log.log(Level.WARNING, "onMessage failed", e);
+        }
 	}
 }

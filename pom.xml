@@ -8,7 +8,7 @@
     <artifactId>ws-d3-voltdb</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>ws-d3-voltdb-app</name>
+    <name>ws-d3-voltdb</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
@@ -89,9 +89,9 @@
                     <goalPrefix>embedded-glassfish</goalPrefix>
                     <app>${basedir}/target/${project.artifactId}-${project.version}.war</app>
                     <autoDelete>true</autoDelete>
-                    <port>8080</port>
+                    <port>9090</port>
                     <name>${project.artifactId}</name>
-                    <contextRoot>services</contextRoot>
+                    <contextRoot>ws-d3-voltdb</contextRoot>
                 </configuration>
                 <executions>
                     <execution>

@@ -39,10 +39,17 @@ public class ReviewStatsCodec implements Encoder.Text<Stats>, Decoder.Text<Stats
     public String encode(final Stats stats) throws EncodeException {
         return Json.createObjectBuilder()
                 .add("benchmarkStartTS", stats.getStartTS())
+                .add("currentTS", stats.getTime())
+                .add("invocations", stats.getInvocations())
                 .add("acceptedReviews", stats.getAccepted())
                 .add("badBookReviews", stats.getInvalidEntity())
                 .add("badReviewCountReviews", stats.getInvalid())
                 .add("failedReviews", stats.getFailed())
+                .add("throughput", stats.getThroughput())
+                .add("aborts", stats.getAborts())
+                .add("errors", stats.getErrors())
+                .add("latency", stats.getLatency())
+                .add("latency_95", stats.getLatency_95())
                 .toString();
     }
 
@@ -50,8 +57,14 @@ public class ReviewStatsCodec implements Encoder.Text<Stats>, Decoder.Text<Stats
     public Stats decode(final String textMessage) throws DecodeException {
         Stats stats = new Stats();
         JsonObject obj = Json.createReader(new StringReader(textMessage)).readObject();
-
         stats.setStartTS(Long.parseLong(obj.getString("benchmarkStartTS")));
+        stats.setEndTS(Long.parseLong(obj.getString("currentTS")));
+        stats.setInvocations(Long.parseLong(obj.getString("invocations")));
+        stats.setThroughput(Long.parseLong(obj.getString("throughput")));
+        stats.setAborts(Long.parseLong(obj.getString("aborts")));
+        stats.setErrors(Long.parseLong(obj.getString("errors")));
+        stats.setLatency(Long.parseLong(obj.getString("latency")));
+        stats.setLatency_95(Long.parseLong(obj.getString("latency_95")));
         stats.setAccepted(Long.parseLong(obj.getString("acceptedReviews")));
         stats.setInvalidEntity(Long.parseLong(obj.getString("badBookReviews")));
         stats.setInvalid(Long.parseLong(obj.getString("badReviewCountReviews")));
